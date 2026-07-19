@@ -21,6 +21,7 @@ namespace CoopServerConsole
                 catch { return 1; }
             }
 
+            Native.EnableDarkMode();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             try

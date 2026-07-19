@@ -118,6 +118,7 @@ namespace CoopServerConsole
         private void BuildUi()
         {
             Text = "Fonza Launcher";
+            try { Icon = System.Drawing.Icon.ExtractAssociatedIcon(System.Reflection.Assembly.GetExecutingAssembly().Location); } catch { }
             StartPosition = FormStartPosition.CenterScreen;
             ClientSize = new Size(1060, 700);
             MinimumSize = new Size(900, 600);
@@ -367,6 +368,11 @@ namespace CoopServerConsole
             RefreshStatus();
             RefreshPlayers();
             SelectInitialTab();
+
+            Native.UseDarkScrollbars(rtbServer);
+            Native.UseDarkScrollbars(rtbClient);
+            Native.UseDarkScrollbars(gridPlayers);
+            if (pages.Length > 4) Native.UseDarkScrollbars(pages[4]);
 
             timer.Interval = 500;
             timer.Tick += (s, ev) => OnTick();
@@ -737,12 +743,57 @@ namespace CoopServerConsole
             int on = 1; try { DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref on, sizeof(int)); } catch { }
             int round = DWMWCP_ROUND; try { DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref round, sizeof(int)); } catch { }
         }
+
+        [DllImport("uxtheme.dll", CharSet = CharSet.Unicode)] private static extern int SetWindowTheme(IntPtr hWnd, string pszSubAppName, string pszSubIdList);
+        [DllImport("uxtheme.dll", EntryPoint = "#135", CharSet = CharSet.Unicode)] private static extern int SetPreferredAppMode(int mode);
+
+        /// <summary>Allow per-control dark theming (dark scrollbars/menus). Call once at startup.</summary>
+        public static void EnableDarkMode() { try { SetPreferredAppMode(1); } catch { } }
+
+        /// <summary>Give a scrollable control Windows' dark scrollbars instead of the light system ones.</summary>
+        public static void UseDarkScrollbars(Control c) { try { SetWindowTheme(c.Handle, "DarkMode_Explorer", null); } catch { } }
     }
 
     internal static class ColorFx
     {
         public static Color Lighten(Color c, float f) { return Color.FromArgb(c.A, Clamp(c.R * f), Clamp(c.G * f), Clamp(c.B * f)); }
         private static int Clamp(float v) { return (int)Math.Max(0, Math.Min(255, v)); }
+    }
+
+    /// <summary>Shared rounded-rect rendering. Borders are drawn as a filled outer path with an inset
+    /// fill on top (NOT a Pen) — a 1px pen on tight rounded corners leaves dark AA halo pixels.</summary>
+    internal static class Fx
+    {
+        public static Color SolidParentBg(Control c)
+        {
+            var p = c.Parent;
+            while (p != null) { if (p.BackColor.A == 255) return p.BackColor; p = p.Parent; }
+            return Color.FromArgb(28, 28, 32);
+        }
+        public static GraphicsPath Round(Rectangle r, int radius)
+        {
+            if (radius <= 0) { var rp = new GraphicsPath(); rp.AddRectangle(r); return rp; }
+            int d = radius * 2; var p = new GraphicsPath();
+            p.AddArc(r.X, r.Y, d, d, 180, 90); p.AddArc(r.Right - d, r.Y, d, d, 270, 90);
+            p.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90); p.AddArc(r.X, r.Bottom - d, d, d, 90, 90);
+            p.CloseFigure(); return p;
+        }
+        public static void RoundedFill(Graphics g, Rectangle rect, int radius, Color fill, Color border, int borderWidth = 1)
+        {
+            var sm = g.SmoothingMode; var pm = g.PixelOffsetMode;
+            g.SmoothingMode = SmoothingMode.AntiAlias; g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            if (border.A > 0 && border != fill)
+            {
+                using (var p = Round(rect, radius)) using (var b = new SolidBrush(border)) g.FillPath(b, p);
+                var inner = new Rectangle(rect.X + borderWidth, rect.Y + borderWidth, rect.Width - 2 * borderWidth, rect.Height - 2 * borderWidth);
+                using (var p = Round(inner, Math.Max(1, radius - borderWidth))) using (var b = new SolidBrush(fill)) g.FillPath(b, p);
+            }
+            else if (fill.A > 0)
+            {
+                using (var p = Round(rect, radius)) using (var b = new SolidBrush(fill)) g.FillPath(b, p);
+            }
+            g.SmoothingMode = sm; g.PixelOffsetMode = pm;
+        }
     }
 
     internal sealed class RoundedButton : Button
@@ -775,17 +826,14 @@ namespace CoopServerConsole
         {
             var g = e.Graphics; g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            var bg = Parent != null ? Parent.BackColor : Color.FromArgb(28, 28, 32);
+            var bg = Fx.SolidParentBg(this);
             using (var b = new SolidBrush(bg)) g.FillRectangle(b, ClientRectangle);
 
             var rect = new Rectangle(0, 0, Width - 1, Height - 1);
             bool act = hover || down;
             Color fill = !Enabled ? DisabledColor : down ? PressColor : hover ? HoverColor : BaseColor;
-            using (var path = Round(rect, Radius))
-            {
-                if (fill.A > 0) using (var b = new SolidBrush(fill)) g.FillPath(b, path);
-                if (Enabled && BorderColor.A > 0) using (var p = new Pen(BorderColor)) g.DrawPath(p, path);
-            }
+            Color bord = (Enabled && BorderColor.A > 0) ? BorderColor : fill;
+            Fx.RoundedFill(g, rect, Radius, fill, bord);
 
             Color tc = !Enabled ? DisabledText : (act && HoverTextColor.A > 0 ? HoverTextColor : TextColor);
             Color ic = !Enabled ? DisabledText : (act && HoverIconColor.A > 0 ? HoverIconColor : (IconColor.A > 0 ? IconColor : tc));
@@ -870,15 +918,10 @@ namespace CoopServerConsole
         }
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            var g = e.Graphics; g.SmoothingMode = SmoothingMode.AntiAlias;
-            var pbg = Parent != null ? Parent.BackColor : Color.FromArgb(28, 28, 32);
+            var g = e.Graphics;
+            var pbg = Fx.SolidParentBg(this);
             using (var b = new SolidBrush(pbg)) g.FillRectangle(b, ClientRectangle);
-            var r = new Rectangle(0, 0, Width - 1, Height - 1);
-            using (var path = Round(r, Radius))
-            {
-                using (var b = new SolidBrush(CardColor)) g.FillPath(b, path);
-                using (var p = new Pen(BorderColor)) g.DrawPath(p, path);
-            }
+            Fx.RoundedFill(g, new Rectangle(0, 0, Width - 1, Height - 1), Radius, CardColor, BorderColor);
         }
         private static GraphicsPath Round(Rectangle r, int radius)
         {
@@ -951,15 +994,10 @@ namespace CoopServerConsole
         }
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            var g = e.Graphics; g.SmoothingMode = SmoothingMode.AntiAlias;
-            var pbg = Parent != null ? Parent.BackColor : Color.FromArgb(38, 38, 44);
+            var g = e.Graphics;
+            var pbg = Fx.SolidParentBg(this);
             using (var b = new SolidBrush(pbg)) g.FillRectangle(b, ClientRectangle);
-            var r = new Rectangle(0, 0, Width - 1, Height - 1);
-            using (var path = Round(r, 7))
-            {
-                using (var b = new SolidBrush(fill)) g.FillPath(b, path);
-                using (var p = new Pen(focused ? focusCol : borderCol, focused ? 1.6f : 1f)) g.DrawPath(p, path);
-            }
+            Fx.RoundedFill(g, new Rectangle(0, 0, Width - 1, Height - 1), 7, fill, focused ? focusCol : borderCol, focused ? 2 : 1);
         }
         private static GraphicsPath Round(Rectangle r, int radius)
         {
@@ -997,14 +1035,9 @@ namespace CoopServerConsole
         protected override void OnPaint(PaintEventArgs e)
         {
             var g = e.Graphics; g.SmoothingMode = SmoothingMode.AntiAlias;
-            var pbg = Parent != null ? Parent.BackColor : Color.FromArgb(38, 38, 44);
+            var pbg = Fx.SolidParentBg(this);
             using (var b = new SolidBrush(pbg)) g.FillRectangle(b, ClientRectangle);
-            var r = new Rectangle(0, 0, Width - 1, Height - 1);
-            using (var path = Round(r, 7))
-            {
-                using (var b = new SolidBrush(Fill)) g.FillPath(b, path);
-                using (var p = new Pen(Border)) g.DrawPath(p, path);
-            }
+            Fx.RoundedFill(g, new Rectangle(0, 0, Width - 1, Height - 1), 7, Fill, Border);
             int w = SegW;
             for (int i = 0; i < items.Length; i++)
             {

@@ -16,6 +16,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <ApplicationIcon>FonzaLauncher.ico</ApplicationIcon>
     <TargetFramework>net472</TargetFramework>
     <RootNamespace>CoopServerConsole</RootNamespace>
     <AssemblyName>FonzaLauncher</AssemblyName>
