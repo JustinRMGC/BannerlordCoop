@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    CoopServerConsole
+    A standalone control panel (single portable .exe) for hosting/joining a
+    Bannerlord Coop session and watching its logs live.
+
+    Targets .NET Framework 4.7.2 on purpose: the 4.x runtime ships with every
+    Windows 10/11, so the produced exe runs with zero install on any machine
+    that can run the game. It does NOT load into the game — it launches
+    Bannerlord.exe as a child process (same args the start-*.bat files use)
+    and tails the mod's Coop_*.log files.
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>CoopServerConsole</RootNamespace>
+    <AssemblyName>CoopServerConsole</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <Deterministic>true</Deterministic>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <!-- CoopVersion comes from ..\Directory.Build.props -->
+    <Version Condition="'$(CoopVersion)' != ''">$(CoopVersion)</Version>
+  </PropertyGroup>
+
+  <!--
+    Deploy the console into the live module next to start-*.bat, mirroring
+    Deploy.targets. No-ops cleanly when the mb2 junction is absent (CI / fresh
+    checkout) so the build never fails on a machine without the game linked.
+  -->
+  <PropertyGroup>
+    <ConsoleModsRoot>$(MSBuildProjectDirectory)\..\..\mb2\Modules</ConsoleModsRoot>
+    <ConsoleModDir>$(ConsoleModsRoot)\Coop</ConsoleModDir>
+  </PropertyGroup>
+
+  <Target Name="DeployConsoleToGame" AfterTargets="Build" Condition="Exists('$(ConsoleModsRoot)')">
+    <Message Importance="high" Text="Deploying CoopServerConsole -&gt; $(ConsoleModDir)" />
+    <MakeDir Directories="$(ConsoleModDir)" />
+    <ItemGroup>
+      <ConsoleOutput Include="$(TargetDir)CoopServerConsole.exe" />
+      <ConsoleOutput Include="$(TargetDir)CoopServerConsole.exe.config" Condition="Exists('$(TargetDir)CoopServerConsole.exe.config')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ConsoleOutput)"
+          DestinationFolder="$(ConsoleModDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>
