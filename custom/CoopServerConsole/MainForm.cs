@@ -38,6 +38,16 @@ namespace CoopServerConsole
         private static readonly Color ColNavSel = Color.FromArgb(40, 42, 50);
         private static readonly Color ColNavHov = Color.FromArgb(32, 33, 39);
 
+        // Filled-button tones (white text) — deeper than the thin cyan accent so text stays readable.
+        private static readonly Color ColPrimary   = Color.FromArgb(56, 150, 208);
+        private static readonly Color ColSuccess    = Color.FromArgb(62, 165, 104);
+        private static readonly Color ColDanger     = Color.FromArgb(206, 80, 80);
+        // Standard (secondary) button: subtle fill + hairline border, Windows 11 style.
+        private static readonly Color ColBtn        = Color.FromArgb(50, 50, 58);
+        private static readonly Color ColBtnHover   = Color.FromArgb(61, 61, 71);
+        private static readonly Color ColBtnPress   = Color.FromArgb(43, 43, 50);
+        private static readonly Color ColBtnBorder  = Color.FromArgb(76, 76, 88);
+
         private static readonly FontFamily BodyFamily = PickFamily("Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI");
         private static readonly FontFamily HeadFamily = PickFamily("Segoe UI Variable Display", "Segoe UI Variable", "Segoe UI Semibold", "Segoe UI");
         private static readonly FontFamily IconFamily = PickFamily("Segoe Fluent Icons", "Segoe MDL2 Assets", "Segoe UI Symbol");
@@ -49,6 +59,21 @@ namespace CoopServerConsole
         private readonly Font subFont   = new Font(BodyFamily, 8.75f, FontStyle.Regular, GraphicsUnit.Point);
         private readonly Font monoFont  = new Font(PickFamily("Cascadia Mono", "Cascadia Code", "Consolas"), 9.5f, FontStyle.Regular, GraphicsUnit.Point);
         private readonly Font iconFont  = new Font(IconFamily, 13f, FontStyle.Regular, GraphicsUnit.Point);
+        private readonly Font btnIconFont = new Font(IconFamily, 10.5f, FontStyle.Regular, GraphicsUnit.Point);
+
+        // Segoe MDL2 / Fluent icon glyphs. ASCII source; resolved to chars at runtime.
+        private static readonly string GlPlay    = ((char)0xE768).ToString();
+        private static readonly string GlStop    = ((char)0xE71A).ToString();
+        private static readonly string GlPause   = ((char)0xE769).ToString();
+        private static readonly string GlFast    = ((char)0xEB9D).ToString();
+        private static readonly string GlRefresh = ((char)0xE72C).ToString();
+        private static readonly string GlEdit    = ((char)0xE70F).ToString();
+        private static readonly string GlKick    = ((char)0xE711).ToString();
+        private static readonly string GlSave    = ((char)0xE74E).ToString();
+        private static readonly string GlMenu    = ((char)0xE80F).ToString();
+        private static readonly string GlFolder  = ((char)0xE8B7).ToString();
+        private static readonly string GlUnlock  = ((char)0xE785).ToString();
+        private static readonly string GlClear   = ((char)0xE894).ToString();
 
         private readonly AppConfig cfg;
         private readonly GameLauncher launcher;
@@ -72,7 +97,7 @@ namespace CoopServerConsole
         private RoundedButton btnRename, btnKick, btnSave, btnPause, btnResume, btnFast, btnMenu;
 
         private TextBox txtSave, txtPass, txtAddr, txtGame;
-        private ComboBox cboVis;
+        private Segmented cboVis;
         private ToggleSwitch tglHideDbg, tglHideNoise;
         private Label toast;
 
@@ -189,9 +214,9 @@ namespace CoopServerConsole
 
             var tools = new CardPanel { Height = 92, Dock = DockStyle.Top, CardColor = ColCard, BorderColor = ColBorder, Radius = 12 };
             tools.Controls.Add(new Label { Text = "Tools", Font = h2Font, ForeColor = ColText, AutoSize = true, Location = new Point(18, 12), BackColor = Color.Transparent, UseMnemonic = false });
-            var tSaves = Btn("Open Saves", 108, (s, e) => OpenFolder(Paths.SavesDir())); tSaves.Location = new Point(18, 44);
-            var tLogs = Btn("Open Logs", 104, (s, e) => OpenFolder(Bin)); tLogs.Location = new Point(134, 44);
-            var tUnb = Btn("Unblock DLLs", 116, (s, e) => UnblockDlls()); tUnb.Location = new Point(246, 44);
+            var tSaves = Btn("Open Saves", 124, (s, e) => OpenFolder(Paths.SavesDir()), BtnKind.Standard, GlFolder); tSaves.Location = new Point(18, 44);
+            var tLogs = Btn("Open Logs", 118, (s, e) => OpenFolder(Bin), BtnKind.Standard, GlFolder); tLogs.Location = new Point(150, 44);
+            var tUnb = Btn("Unblock DLLs", 140, (s, e) => UnblockDlls(), BtnKind.Standard, GlUnlock); tUnb.Location = new Point(276, 44);
             tools.Controls.Add(tSaves); tools.Controls.Add(tLogs); tools.Controls.Add(tUnb);
             var gap2 = new Panel { Dock = DockStyle.Top, Height = 14, BackColor = ColBg };
 
@@ -199,8 +224,8 @@ namespace CoopServerConsole
             client.Controls.Add(new Label { Text = "Client", Font = h2Font, ForeColor = ColText, AutoSize = true, Location = new Point(18, 12), BackColor = Color.Transparent, UseMnemonic = false });
             homeClientStat = new Label { AutoSize = true, Location = new Point(20, 46), Font = uiFont, ForeColor = ColDim, BackColor = Color.Transparent, UseMnemonic = false };
             client.Controls.Add(homeClientStat);
-            hbStartClient = Btn("▶  Start Client", 134, (s, e) => StartClient(), ColAccent); hbStartClient.Location = new Point(18, 72);
-            hbStopClient = Btn("■  Stop Client", 122, (s, e) => StopClient()); hbStopClient.Location = new Point(160, 72);
+            hbStartClient = Btn("Start Client", 140, (s, e) => StartClient(), BtnKind.Primary, GlPlay); hbStartClient.Location = new Point(18, 72);
+            hbStopClient = Btn("Stop Client", 128, (s, e) => StopClient(), BtnKind.Standard, GlStop); hbStopClient.Location = new Point(166, 72);
             client.Controls.Add(hbStartClient); client.Controls.Add(hbStopClient);
             var gap1 = new Panel { Dock = DockStyle.Top, Height = 14, BackColor = ColBg };
 
@@ -209,9 +234,9 @@ namespace CoopServerConsole
             homeServerStat = new Label { AutoSize = true, Location = new Point(20, 46), Font = uiFont, ForeColor = ColDim, BackColor = Color.Transparent, UseMnemonic = false };
             homeServerSummary = new Label { AutoSize = true, Location = new Point(20, 70), Font = subFont, ForeColor = ColDim, BackColor = Color.Transparent, UseMnemonic = false };
             server.Controls.Add(homeServerStat); server.Controls.Add(homeServerSummary);
-            hbStartServer = Btn("▶  Start Server", 138, (s, e) => StartServer(), ColOk); hbStartServer.Location = new Point(18, 100);
-            hbStopServer = Btn("■  Stop Server", 124, (s, e) => StopServer()); hbStopServer.Location = new Point(164, 100);
-            hbRestart = Btn("⟳  Restart", 100, (s, e) => RestartServer()); hbRestart.Location = new Point(296, 100);
+            hbStartServer = Btn("Start Server", 148, (s, e) => StartServer(), BtnKind.Success, GlPlay); hbStartServer.Location = new Point(18, 100);
+            hbStopServer = Btn("Stop Server", 130, (s, e) => StopServer(), BtnKind.Standard, GlStop); hbStopServer.Location = new Point(174, 100);
+            hbRestart = Btn("Restart", 110, (s, e) => RestartServer(), BtnKind.Standard, GlRefresh); hbRestart.Location = new Point(312, 100);
             server.Controls.Add(hbStartServer); server.Controls.Add(hbStopServer); server.Controls.Add(hbRestart);
 
             page.Controls.Add(tools);
@@ -233,7 +258,7 @@ namespace CoopServerConsole
             if (isServer) rtbServer = rtb; else rtbClient = rtb;
 
             bar.Controls.Add(new Label { Text = "Filters are in Settings › Logs", Dock = DockStyle.Left, Width = 260, ForeColor = ColDim, Font = subFont, TextAlign = ContentAlignment.MiddleLeft, UseMnemonic = false });
-            var clear = Btn("Clear", 72, (s, e) => rtb.Clear()); clear.Dock = DockStyle.Right; clear.Width = 72;
+            var clear = Btn("Clear", 90, (s, e) => rtb.Clear(), BtnKind.Standard, GlClear); clear.Dock = DockStyle.Right; clear.Width = 90;
             bar.Controls.Add(clear);
 
             card.Controls.Add(rtb);
@@ -263,15 +288,25 @@ namespace CoopServerConsole
             StyleGrid(gridPlayers);
             AddCol("#", 8); AddCol("Name", 40); AddCol("Clan", 30); AddCol("State", 22);
 
-            var actions = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 50, BackColor = Color.Transparent, Padding = new Padding(0, 9, 0, 0) };
-            btnRename = Btn("Rename…", 92, (s, e) => RenameSelected(), ColAccent);
-            btnKick = Btn("Kick", 72, (s, e) => KickSelected(), ColBad);
-            btnSave = Btn("Save game", 98, (s, e) => Cmd("save", "Saving game…"));
-            btnPause = Btn("Pause", 74, (s, e) => Cmd("pause", "Pausing…"));
-            btnResume = Btn("Resume 1x", 96, (s, e) => Cmd("resume", "Resuming…"));
-            btnFast = Btn("Fast 2x", 82, (s, e) => Cmd("speed 2", "Fast-forward…"));
-            btnMenu = Btn("To menu", 88, (s, e) => { if (Confirm("Return the server to the main menu (disconnects everyone)?")) Cmd("menu", "Returning to menu…"); });
-            actions.Controls.AddRange(new Control[] { btnRename, btnKick, btnSave, btnPause, btnResume, btnFast, btnMenu });
+            // Bottom action bar: player-specific actions grouped left, server/session controls right.
+            var actions = new Panel { Dock = DockStyle.Bottom, Height = 54, BackColor = Color.Transparent, Padding = new Padding(0, 11, 0, 3) };
+
+            btnRename = Btn("Rename", 104, (s, e) => RenameSelected(), BtnKind.Standard, GlEdit);
+            btnKick   = Btn("Kick", 86, (s, e) => KickSelected(), BtnKind.Danger, GlKick);
+            var leftGrp = new FlowLayoutPanel { Dock = DockStyle.Left, AutoSize = true, WrapContents = false, BackColor = Color.Transparent, Margin = new Padding(0) };
+            leftGrp.Controls.AddRange(new Control[] { btnRename, btnKick });
+
+            btnSave   = Btn("Save", 90, (s, e) => Cmd("save", "Saving game…"), BtnKind.Standard, GlSave);
+            btnPause  = Btn("Pause", 92, (s, e) => Cmd("pause", "Pausing…"), BtnKind.Standard, GlPause);
+            btnResume = Btn("Resume", 102, (s, e) => Cmd("resume", "Resuming (1x)…"), BtnKind.Standard, GlPlay);
+            btnFast   = Btn("Fast 2x", 100, (s, e) => Cmd("speed 2", "Fast-forward (2x)…"), BtnKind.Standard, GlFast);
+            btnMenu   = Btn("Main menu", 118, (s, e) => { if (Confirm("Return the server to the main menu (disconnects everyone)?")) Cmd("menu", "Returning to menu…"); }, BtnKind.Standard, GlMenu);
+            var rightGrp = new FlowLayoutPanel { Dock = DockStyle.Right, AutoSize = true, WrapContents = false, FlowDirection = FlowDirection.LeftToRight, BackColor = Color.Transparent, Margin = new Padding(0) };
+            rightGrp.Controls.AddRange(new Control[] { btnSave, btnPause, btnResume, btnFast, btnMenu });
+            btnMenu.Margin = new Padding(0);
+
+            actions.Controls.Add(rightGrp);
+            actions.Controls.Add(leftGrp);
 
             card.Controls.Add(gridPlayers);
             card.Controls.Add(actions);
@@ -285,12 +320,12 @@ namespace CoopServerConsole
         {
             var page = new Panel { Dock = DockStyle.Fill, BackColor = ColBg, AutoScroll = true };
 
-            var advanced = new CardPanel { Height = 176, Dock = DockStyle.Top, CardColor = ColCard, BorderColor = ColBorder, Radius = 12 };
+            var advanced = new CardPanel { Height = 196, Dock = DockStyle.Top, CardColor = ColCard, BorderColor = ColBorder, Radius = 12 };
             CardTitle(advanced, "Advanced");
             txtAddr = FieldText(advanced, "Address hint", "Reminder of the host address to join (typed in-game).", 44);
             txtGame = FieldText(advanced, "Game folder", "Leave blank to auto-detect from where this exe lives.", 96);
-            var save = Btn("Save settings", 128, (s, e) => { CommitSettings(); Toast("✓ Settings saved to coopconsole.cfg"); }, ColAccent);
-            save.Location = new Point(170, 140); advanced.Controls.Add(save);
+            var save = Btn("Save settings", 152, (s, e) => { CommitSettings(); Toast("✓ Settings saved to coopconsole.cfg"); }, BtnKind.Primary, GlSave);
+            save.Location = new Point(170, 154); advanced.Controls.Add(save);
             var g3 = new Panel { Dock = DockStyle.Top, Height = 14, BackColor = ColBg };
 
             var logs = new CardPanel { Height = 128, Dock = DockStyle.Top, CardColor = ColCard, BorderColor = ColBorder, Radius = 12 };
@@ -301,7 +336,7 @@ namespace CoopServerConsole
 
             var hosting = new CardPanel { Height = 150, Dock = DockStyle.Top, CardColor = ColCard, BorderColor = ColBorder, Radius = 12 };
             CardTitle(hosting, "Hosting");
-            cboVis = FieldCombo(hosting, "Visibility", new[] { "public", "friends_only", "none" }, 46);
+            cboVis = FieldSegmented(hosting, "Visibility", new[] { "public", "friends_only", "none" }, new[] { "Public", "Friends", "None" }, 264, 46);
             txtPass = FieldText(hosting, "Password", "Optional. Leave blank for no password.", 90);
             var g1 = new Panel { Dock = DockStyle.Top, Height = 14, BackColor = ColBg };
 
@@ -555,8 +590,7 @@ namespace CoopServerConsole
         private void LoadSettingsIntoControls()
         {
             txtSave.Text = cfg.SaveName;
-            cboVis.SelectedItem = AppConfig.NormalizeVisibility(cfg.Visibility);
-            if (cboVis.SelectedIndex < 0) cboVis.SelectedIndex = 0;
+            cboVis.Value = AppConfig.NormalizeVisibility(cfg.Visibility);
             txtPass.Text = cfg.Password;
             txtAddr.Text = cfg.ServerAddressHint;
             txtGame.Text = cfg.GameRoot;
@@ -570,7 +604,7 @@ namespace CoopServerConsole
         {
             if (txtSave == null) return;
             cfg.SaveName = string.IsNullOrWhiteSpace(txtSave.Text) ? "MP" : txtSave.Text.Trim();
-            cfg.Visibility = AppConfig.NormalizeVisibility(cboVis.SelectedItem?.ToString());
+            cfg.Visibility = AppConfig.NormalizeVisibility(cboVis.Value);
             cfg.Password = txtPass.Text;
             cfg.ServerAddressHint = txtAddr.Text.Trim();
             cfg.GameRoot = txtGame.Text.Trim();
@@ -581,13 +615,36 @@ namespace CoopServerConsole
 
         // ---------------------------------------------------------------- widgets
 
-        private RoundedButton Btn(string text, int width, EventHandler onClick, Color? accent = null)
+        private enum BtnKind { Standard, Primary, Success, Danger, Subtle }
+
+        private RoundedButton Btn(string text, int width, EventHandler onClick, BtnKind kind = BtnKind.Standard, string glyph = null)
         {
-            var b = new RoundedButton { Text = text, Width = width, Height = 34, Font = uiFont, Margin = new Padding(0, 0, 8, 0), Cursor = Cursors.Hand, Radius = 9 };
-            if (accent.HasValue) { b.BaseColor = accent.Value; b.HoverColor = ColorFx.Lighten(accent.Value, 1.12f); b.PressColor = ColorFx.Lighten(accent.Value, 0.88f); b.TextColor = Color.FromArgb(16, 18, 22); }
-            else { b.BaseColor = ColInput; b.HoverColor = Color.FromArgb(66, 66, 74); b.PressColor = Color.FromArgb(42, 42, 48); b.TextColor = ColText; }
-            b.DisabledColor = Color.FromArgb(44, 44, 50); b.DisabledText = Color.FromArgb(110, 110, 118);
-            b.Click += onClick;
+            var b = new RoundedButton
+            {
+                Text = text, Width = width, Height = 34, Font = uiFont, Margin = new Padding(0, 0, 8, 0),
+                Cursor = Cursors.Hand, Radius = 7, Glyph = glyph, IconFont = btnIconFont,
+                DisabledColor = Color.FromArgb(44, 44, 50), DisabledText = Color.FromArgb(108, 108, 116),
+            };
+            switch (kind)
+            {
+                case BtnKind.Primary:
+                    b.BaseColor = ColPrimary; b.HoverColor = ColorFx.Lighten(ColPrimary, 1.10f); b.PressColor = ColorFx.Lighten(ColPrimary, 0.90f);
+                    b.TextColor = Color.White; b.IconColor = Color.White; break;
+                case BtnKind.Success:
+                    b.BaseColor = ColSuccess; b.HoverColor = ColorFx.Lighten(ColSuccess, 1.10f); b.PressColor = ColorFx.Lighten(ColSuccess, 0.90f);
+                    b.TextColor = Color.White; b.IconColor = Color.White; break;
+                case BtnKind.Danger: // subtle until hover, then fills red — avoids a permanently garish button
+                    b.BaseColor = ColBtn; b.HoverColor = ColDanger; b.PressColor = ColorFx.Lighten(ColDanger, 0.90f);
+                    b.BorderColor = ColBtnBorder; b.TextColor = ColBad; b.IconColor = ColBad;
+                    b.HoverTextColor = Color.White; b.HoverIconColor = Color.White; break;
+                case BtnKind.Subtle:
+                    b.BaseColor = Color.Transparent; b.HoverColor = ColBtn; b.PressColor = ColBtnPress;
+                    b.TextColor = ColText; b.IconColor = ColDim; b.HoverIconColor = ColText; break;
+                default: // Standard: subtle fill + hairline border
+                    b.BaseColor = ColBtn; b.HoverColor = ColBtnHover; b.PressColor = ColBtnPress;
+                    b.BorderColor = ColBtnBorder; b.TextColor = ColText; b.IconColor = ColDim; b.HoverIconColor = ColText; break;
+            }
+            if (onClick != null) b.Click += onClick;
             return b;
         }
 
@@ -598,20 +655,20 @@ namespace CoopServerConsole
 
         private TextBox FieldText(CardPanel card, string label, string help, int y)
         {
-            card.Controls.Add(new Label { Text = label, ForeColor = ColText, AutoSize = true, Location = new Point(18, y + 4), BackColor = Color.Transparent, UseMnemonic = false });
-            var t = new TextBox { Location = new Point(170, y), Width = 340, BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.FixedSingle, Font = uiFont };
-            card.Controls.Add(t);
-            card.Controls.Add(new Label { Text = help, ForeColor = ColDim, Font = subFont, AutoSize = true, Location = new Point(172, y + 25), BackColor = Color.Transparent, UseMnemonic = false });
-            return t;
+            card.Controls.Add(new Label { Text = label, ForeColor = ColText, AutoSize = true, Location = new Point(18, y + 7), BackColor = Color.Transparent, UseMnemonic = false });
+            var host = new FieldBox(uiFont, ColInput, ColText, ColBtnBorder, ColAccent) { Location = new Point(170, y), Width = 340, Height = 32 };
+            card.Controls.Add(host);
+            card.Controls.Add(new Label { Text = help, ForeColor = ColDim, Font = subFont, AutoSize = true, Location = new Point(172, y + 38), BackColor = Color.Transparent, UseMnemonic = false });
+            return host.Box;
         }
 
-        private ComboBox FieldCombo(CardPanel card, string label, string[] items, int y)
+        private Segmented FieldSegmented(CardPanel card, string label, string[] values, string[] display, int width, int y)
         {
-            card.Controls.Add(new Label { Text = label, ForeColor = ColText, AutoSize = true, Location = new Point(18, y + 4), BackColor = Color.Transparent, UseMnemonic = false });
-            var c = new ComboBox { Location = new Point(170, y), Width = 200, DropDownStyle = ComboBoxStyle.DropDownList, BackColor = ColInput, ForeColor = ColText, FlatStyle = FlatStyle.Flat, Font = uiFont };
-            c.Items.AddRange(items);
-            card.Controls.Add(c);
-            return c;
+            card.Controls.Add(new Label { Text = label, ForeColor = ColText, AutoSize = true, Location = new Point(18, y + 7), BackColor = Color.Transparent, UseMnemonic = false });
+            var seg = new Segmented { Location = new Point(170, y), Width = width, Height = 32, Font = uiFont, Accent = ColPrimary, Fill = ColInput, Border = ColBtnBorder, TextCol = ColText, DimCol = ColDim };
+            seg.SetItems(values, display);
+            card.Controls.Add(seg);
+            return seg;
         }
 
         private ToggleSwitch ToggleRow(CardPanel card, string label, int y)
@@ -651,7 +708,7 @@ namespace CoopServerConsole
             {
                 var lbl = new Label { Text = prompt, ForeColor = ColText, AutoSize = true, Location = new Point(16, 16), UseMnemonic = false };
                 var tb = new TextBox { Text = def, Location = new Point(16, 44), Width = 368, BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.FixedSingle };
-                var ok = Btn("OK", 90, null, ColAccent); ok.Location = new Point(196, 84); ok.DialogResult = DialogResult.OK;
+                var ok = Btn("OK", 90, null, BtnKind.Primary); ok.Location = new Point(196, 84); ok.DialogResult = DialogResult.OK;
                 var cancel = Btn("Cancel", 90, null); cancel.Location = new Point(294, 84); cancel.DialogResult = DialogResult.Cancel;
                 f.Controls.Add(lbl); f.Controls.Add(tb); f.Controls.Add(ok); f.Controls.Add(cancel);
                 f.AcceptButton = ok; f.CancelButton = cancel;
@@ -690,13 +747,19 @@ namespace CoopServerConsole
 
     internal sealed class RoundedButton : Button
     {
-        public Color BaseColor = Color.FromArgb(48, 48, 54);
-        public Color HoverColor = Color.FromArgb(66, 66, 74);
-        public Color PressColor = Color.FromArgb(42, 42, 48);
+        public Color BaseColor = Color.FromArgb(50, 50, 58);
+        public Color HoverColor = Color.FromArgb(61, 61, 71);
+        public Color PressColor = Color.FromArgb(43, 43, 50);
         public Color TextColor = Color.White;
+        public Color HoverTextColor = Color.Empty;   // Empty => use TextColor
+        public Color IconColor = Color.Empty;         // Empty => use current text colour
+        public Color HoverIconColor = Color.Empty;
+        public Color BorderColor = Color.Transparent;
         public Color DisabledColor = Color.FromArgb(44, 44, 50);
         public Color DisabledText = Color.FromArgb(110, 110, 118);
-        public int Radius = 9;
+        public int Radius = 7;
+        public string Glyph;
+        public Font IconFont;
         private bool hover, down;
 
         public RoundedButton()
@@ -711,12 +774,39 @@ namespace CoopServerConsole
         protected override void OnPaint(PaintEventArgs e)
         {
             var g = e.Graphics; g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             var bg = Parent != null ? Parent.BackColor : Color.FromArgb(28, 28, 32);
             using (var b = new SolidBrush(bg)) g.FillRectangle(b, ClientRectangle);
+
             var rect = new Rectangle(0, 0, Width - 1, Height - 1);
+            bool act = hover || down;
             Color fill = !Enabled ? DisabledColor : down ? PressColor : hover ? HoverColor : BaseColor;
-            using (var path = Round(rect, Radius)) using (var b = new SolidBrush(fill)) g.FillPath(b, path);
-            TextRenderer.DrawText(g, Text, Font, rect, Enabled ? TextColor : DisabledText, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+            using (var path = Round(rect, Radius))
+            {
+                if (fill.A > 0) using (var b = new SolidBrush(fill)) g.FillPath(b, path);
+                if (Enabled && BorderColor.A > 0) using (var p = new Pen(BorderColor)) g.DrawPath(p, path);
+            }
+
+            Color tc = !Enabled ? DisabledText : (act && HoverTextColor.A > 0 ? HoverTextColor : TextColor);
+            Color ic = !Enabled ? DisabledText : (act && HoverIconColor.A > 0 ? HoverIconColor : (IconColor.A > 0 ? IconColor : tc));
+
+            const TextFormatFlags vc = TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine;
+            if (!string.IsNullOrEmpty(Glyph) && IconFont != null)
+            {
+                Size gs = TextRenderer.MeasureText(g, Glyph, IconFont, Size.Empty, vc);
+                bool hasText = !string.IsNullOrEmpty(Text);
+                Size ts = hasText ? TextRenderer.MeasureText(g, Text, Font, Size.Empty, vc) : Size.Empty;
+                int gap = hasText ? 8 : 0;
+                int total = gs.Width + gap + ts.Width;
+                int x = Math.Max(4, (Width - total) / 2);
+                TextRenderer.DrawText(g, Glyph, IconFont, new Rectangle(x, 0, gs.Width + 2, Height), ic, vc | TextFormatFlags.Left);
+                if (hasText)
+                    TextRenderer.DrawText(g, Text, Font, new Rectangle(x + gs.Width + gap, 0, ts.Width + 4, Height), tc, vc | TextFormatFlags.Left);
+            }
+            else
+            {
+                TextRenderer.DrawText(g, Text, Font, rect, tc, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+            }
         }
         private static GraphicsPath Round(Rectangle r, int radius)
         {
@@ -834,6 +924,105 @@ namespace CoopServerConsole
         {
             int d = rad * 2; var p = new GraphicsPath();
             p.AddArc(r.X, r.Y, d, d, 90, 180); p.AddArc(r.Right - d, r.Y, d, d, 270, 180);
+            p.CloseFigure(); return p;
+        }
+    }
+
+    /// <summary>A borderless TextBox wrapped in a rounded, bordered panel with a focus highlight (Fluent input).</summary>
+    internal sealed class FieldBox : Panel
+    {
+        public readonly TextBox Box;
+        private readonly Color fill, borderCol, focusCol;
+        private bool focused;
+        public FieldBox(Font font, Color fillColor, Color textColor, Color borderColor, Color focusColor)
+        {
+            SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.AllPaintingInWmPaint, true);
+            fill = fillColor; borderCol = borderColor; focusCol = focusColor;
+            Height = 32; BackColor = fillColor;
+            Box = new TextBox { BorderStyle = BorderStyle.None, BackColor = fillColor, ForeColor = textColor, Font = font };
+            Box.GotFocus += (s, e) => { focused = true; Invalidate(); };
+            Box.LostFocus += (s, e) => { focused = false; Invalidate(); };
+            Controls.Add(Box);
+        }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            if (Box != null) { int h = Box.PreferredHeight; Box.SetBounds(12, Math.Max(0, (Height - h) / 2), Width - 22, h); }
+        }
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            var g = e.Graphics; g.SmoothingMode = SmoothingMode.AntiAlias;
+            var pbg = Parent != null ? Parent.BackColor : Color.FromArgb(38, 38, 44);
+            using (var b = new SolidBrush(pbg)) g.FillRectangle(b, ClientRectangle);
+            var r = new Rectangle(0, 0, Width - 1, Height - 1);
+            using (var path = Round(r, 7))
+            {
+                using (var b = new SolidBrush(fill)) g.FillPath(b, path);
+                using (var p = new Pen(focused ? focusCol : borderCol, focused ? 1.6f : 1f)) g.DrawPath(p, path);
+            }
+        }
+        private static GraphicsPath Round(Rectangle r, int radius)
+        {
+            int d = radius * 2; var p = new GraphicsPath();
+            p.AddArc(r.X, r.Y, d, d, 180, 90); p.AddArc(r.Right - d, r.Y, d, d, 270, 90);
+            p.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90); p.AddArc(r.X, r.Bottom - d, d, d, 90, 90);
+            p.CloseFigure(); return p;
+        }
+    }
+
+    /// <summary>A compact segmented selector (like iOS/Fluent segments) — cleaner than a combo for a few options.</summary>
+    internal sealed class Segmented : Control
+    {
+        private string[] items = new string[0];
+        private string[] labels = new string[0];
+        private int sel, hoverIdx = -1;
+        public event EventHandler ValueChanged;
+        public Color Accent = Color.FromArgb(56, 150, 208), Fill = Color.FromArgb(50, 50, 58), Border = Color.FromArgb(74, 74, 86), TextCol = Color.FromArgb(240, 240, 243), DimCol = Color.FromArgb(154, 154, 165);
+        public Segmented()
+        {
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
+            Cursor = Cursors.Hand; Height = 32;
+        }
+        public void SetItems(string[] values, string[] display) { items = values ?? new string[0]; labels = display ?? values; Invalidate(); }
+        public string Value
+        {
+            get { return sel >= 0 && sel < items.Length ? items[sel] : null; }
+            set { for (int i = 0; i < items.Length; i++) if (string.Equals(items[i], value, StringComparison.OrdinalIgnoreCase)) { if (sel != i) { sel = i; Invalidate(); ValueChanged?.Invoke(this, EventArgs.Empty); } return; } }
+        }
+        private int SegW { get { return items.Length > 0 ? Width / items.Length : Width; } }
+        private int IndexAt(int x) { if (items.Length == 0) return -1; return Math.Max(0, Math.Min(items.Length - 1, x / SegW)); }
+        protected override void OnMouseMove(MouseEventArgs e) { int i = IndexAt(e.X); if (i != hoverIdx) { hoverIdx = i; Invalidate(); } base.OnMouseMove(e); }
+        protected override void OnMouseLeave(EventArgs e) { hoverIdx = -1; Invalidate(); base.OnMouseLeave(e); }
+        protected override void OnMouseDown(MouseEventArgs e) { int i = IndexAt(e.X); if (i >= 0 && i != sel) { sel = i; Invalidate(); ValueChanged?.Invoke(this, EventArgs.Empty); } base.OnMouseDown(e); }
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            var g = e.Graphics; g.SmoothingMode = SmoothingMode.AntiAlias;
+            var pbg = Parent != null ? Parent.BackColor : Color.FromArgb(38, 38, 44);
+            using (var b = new SolidBrush(pbg)) g.FillRectangle(b, ClientRectangle);
+            var r = new Rectangle(0, 0, Width - 1, Height - 1);
+            using (var path = Round(r, 7))
+            {
+                using (var b = new SolidBrush(Fill)) g.FillPath(b, path);
+                using (var p = new Pen(Border)) g.DrawPath(p, path);
+            }
+            int w = SegW;
+            for (int i = 0; i < items.Length; i++)
+            {
+                int segX = i * w, segW = (i == items.Length - 1) ? Width - 1 - segX : w;
+                var seg = new Rectangle(segX, 0, segW, Height - 1);
+                if (i == sel)
+                    using (var path = Round(new Rectangle(seg.X + 2, seg.Y + 2, seg.Width - 3, seg.Height - 4), 5)) using (var b = new SolidBrush(Accent)) g.FillPath(b, path);
+                else if (i == hoverIdx)
+                    using (var path = Round(new Rectangle(seg.X + 2, seg.Y + 2, seg.Width - 3, seg.Height - 4), 5)) using (var b = new SolidBrush(Color.FromArgb(48, 255, 255, 255))) g.FillPath(b, path);
+                TextRenderer.DrawText(g, labels.Length > i ? labels[i] : items[i], Font, seg, i == sel ? Color.White : DimCol, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+            }
+        }
+        private static GraphicsPath Round(Rectangle r, int radius)
+        {
+            int d = radius * 2; var p = new GraphicsPath();
+            if (d <= 0) { p.AddRectangle(r); return p; }
+            p.AddArc(r.X, r.Y, d, d, 180, 90); p.AddArc(r.Right - d, r.Y, d, d, 270, 90);
+            p.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90); p.AddArc(r.X, r.Bottom - d, d, d, 90, 90);
             p.CloseFigure(); return p;
         }
     }
