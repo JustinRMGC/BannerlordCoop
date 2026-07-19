@@ -42,6 +42,27 @@ namespace CoopServerConsole
             return "";
         }
 
+        // Routine sync-layer chatter the mod logs at ERR level but which is functionally noise
+        // in this pre-alpha. Hidden by default so real problems are visible.
+        private static readonly string[] NoiseMarkers =
+        {
+            "AutoSync.",
+            "ObjectManager] Failed to get",
+            "Unable to find Settlement",
+            "Failed to retrieve ID for object",
+            "Client updated managed",
+            "Client changed managed",
+            "Client created managed",
+        };
+
+        public static bool IsSyncNoise(string line)
+        {
+            if (string.IsNullOrEmpty(line)) return false;
+            foreach (var m in NoiseMarkers)
+                if (line.IndexOf(m, StringComparison.Ordinal) >= 0) return true;
+            return false;
+        }
+
         private static string TimeOf(string line)
         {
             var m = TimeRx.Match(line);

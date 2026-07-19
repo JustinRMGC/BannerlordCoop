@@ -1,22 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    CoopServerConsole
-    A standalone control panel (single portable .exe) for hosting/joining a
-    Bannerlord Coop session and watching its logs live.
+    Fonza Launcher (CoopServerConsole)
+    A standalone WINDOWED control panel (single portable .exe) for hosting/
+    joining a Bannerlord Coop session, watching logs live, and managing players.
 
-    Targets .NET Framework 4.7.2 on purpose: the 4.x runtime ships with every
-    Windows 10/11, so the produced exe runs with zero install on any machine
-    that can run the game. It does NOT load into the game — it launches
-    Bannerlord.exe as a child process (same args the start-*.bat files use)
-    and tails the mod's Coop_*.log files.
+    Targets .NET Framework 4.7.2 on purpose: the 4.x runtime (incl. WinForms)
+    ships with every Windows 10/11, so the produced exe runs with zero install
+    on any machine that can run the game. It does NOT load into the game — it
+    launches Bannerlord.exe as a child process (same args the start-*.bat files
+    use), tails the mod's Coop_*.log files, and talks to the in-mod bridge via
+    files for the live player list / admin actions.
   -->
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net472</TargetFramework>
     <RootNamespace>CoopServerConsole</RootNamespace>
-    <AssemblyName>CoopServerConsole</AssemblyName>
+    <AssemblyName>FonzaLauncher</AssemblyName>
+    <Product>Fonza Launcher</Product>
+    <AssemblyTitle>Fonza Launcher</AssemblyTitle>
     <LangVersion>latest</LangVersion>
     <Deterministic>true</Deterministic>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
@@ -24,6 +27,11 @@
     <!-- CoopVersion comes from ..\Directory.Build.props -->
     <Version Condition="'$(CoopVersion)' != ''">$(CoopVersion)</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
 
   <!--
     Deploy the console into the live module next to start-*.bat, mirroring
@@ -39,11 +47,21 @@
     <Message Importance="high" Text="Deploying CoopServerConsole -&gt; $(ConsoleModDir)" />
     <MakeDir Directories="$(ConsoleModDir)" />
     <ItemGroup>
-      <ConsoleOutput Include="$(TargetDir)CoopServerConsole.exe" />
-      <ConsoleOutput Include="$(TargetDir)CoopServerConsole.exe.config" Condition="Exists('$(TargetDir)CoopServerConsole.exe.config')" />
+      <ConsoleOutput Include="$(TargetDir)FonzaLauncher.exe" />
+      <ConsoleOutput Include="$(TargetDir)FonzaLauncher.exe.config" Condition="Exists('$(TargetDir)FonzaLauncher.exe.config')" />
     </ItemGroup>
     <Copy SourceFiles="@(ConsoleOutput)"
           DestinationFolder="$(ConsoleModDir)"
+          SkipUnchangedFiles="true" />
+
+    <!-- Also refresh the shareable folder so it never contains an outdated build. -->
+    <ItemGroup Condition="Exists('$(CoopShareDir)')">
+      <ShareSyncFiles Include="$(ConsoleModDir)\**\*" />
+    </ItemGroup>
+    <Message Condition="Exists('$(CoopShareDir)')" Importance="high" Text="Syncing share folder -&gt; $(CoopShareDir)\Coop" />
+    <Copy Condition="Exists('$(CoopShareDir)')"
+          SourceFiles="@(ShareSyncFiles)"
+          DestinationFiles="@(ShareSyncFiles->'$(CoopShareDir)\Coop\%(RecursiveDir)%(Filename)%(Extension)')"
           SkipUnchangedFiles="true" />
   </Target>
 

@@ -16,6 +16,7 @@ namespace CoopServerConsole
         public string Password = "";                    // optional server password
         public string ServerAddressHint = "127.0.0.1";  // shown to the user; client address is typed in-game
         public bool HideDebugLogLines = true;           // logs are flooded with DBG noise; hide by default
+        public bool HideSyncNoise = true;               // hide the mod's routine sync-layer ERR spam by default
 
         public static AppConfig Load()
         {
@@ -48,6 +49,7 @@ namespace CoopServerConsole
                 case "password": Password = val; break;
                 case "serveraddresshint": ServerAddressHint = val; break;
                 case "hidedebugloglines": HideDebugLogLines = ParseBool(val, true); break;
+                case "hidesyncnoise": HideSyncNoise = ParseBool(val, true); break;
             }
         }
 
@@ -83,12 +85,13 @@ namespace CoopServerConsole
                     "password=" + Password,
                     "serverAddressHint=" + ServerAddressHint,
                     "hideDebugLogLines=" + HideDebugLogLines,
+                    "hideSyncNoise=" + HideSyncNoise,
                 };
                 File.WriteAllLines(Paths.ConfigFile, lines);
             }
-            catch (Exception ex)
+            catch
             {
-                Ui.Error("Could not save settings: " + ex.Message);
+                // Best effort — a failed settings write must not crash the app.
             }
         }
     }

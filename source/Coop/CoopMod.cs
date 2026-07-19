@@ -2,6 +2,7 @@
 using Common.Logging;
 using Coop.Core;
 using Coop.Core.Common.Session;
+using Coop.Core.Server.Admin;
 using Coop.Lib.NoHarmony;
 using Coop.UI.LoadGameUI;
 using GameInterface;
@@ -265,6 +266,15 @@ namespace Coop
             Coop = new CoopartiveMultiplayerExperience(isServer);
 
             Updateables.Add(GameThread.Instance);
+
+            // Server-only bridge for the external CoopServerConsole control panel: writes a live
+            // status/player file and consumes admin commands. Fully guarded — a failure here must
+            // never disturb normal play, so it is best-effort and swallows its own errors.
+            if (isServer)
+            {
+                try { Updateables.Add(new ConsoleControlBridge()); }
+                catch (Exception ex) { Logger.Warning(ex, "[ConsoleBridge] failed to start (ignored)"); }
+            }
 
 
             // Skip startup splash screen
