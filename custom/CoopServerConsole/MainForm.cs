@@ -289,11 +289,11 @@ namespace CoopServerConsole
             AddCol("#", 8); AddCol("Name", 40); AddCol("Clan", 30); AddCol("State", 22);
 
             // Bottom action bar: player-specific actions grouped left, server/session controls right.
-            var actions = new Panel { Dock = DockStyle.Bottom, Height = 54, BackColor = Color.Transparent, Padding = new Padding(0, 11, 0, 3) };
+            var actions = new Panel { Dock = DockStyle.Bottom, Height = 54, BackColor = ColCard, Padding = new Padding(0, 11, 0, 3) };
 
             btnRename = Btn("Rename", 104, (s, e) => RenameSelected(), BtnKind.Standard, GlEdit);
             btnKick   = Btn("Kick", 86, (s, e) => KickSelected(), BtnKind.Danger, GlKick);
-            var leftGrp = new FlowLayoutPanel { Dock = DockStyle.Left, AutoSize = true, WrapContents = false, BackColor = Color.Transparent, Margin = new Padding(0) };
+            var leftGrp = new FlowLayoutPanel { Dock = DockStyle.Left, AutoSize = true, WrapContents = false, BackColor = ColCard, Margin = new Padding(0) };
             leftGrp.Controls.AddRange(new Control[] { btnRename, btnKick });
 
             btnSave   = Btn("Save", 90, (s, e) => Cmd("save", "Saving game…"), BtnKind.Standard, GlSave);
@@ -301,7 +301,7 @@ namespace CoopServerConsole
             btnResume = Btn("Resume", 102, (s, e) => Cmd("resume", "Resuming (1x)…"), BtnKind.Standard, GlPlay);
             btnFast   = Btn("Fast 2x", 100, (s, e) => Cmd("speed 2", "Fast-forward (2x)…"), BtnKind.Standard, GlFast);
             btnMenu   = Btn("Main menu", 118, (s, e) => { if (Confirm("Return the server to the main menu (disconnects everyone)?")) Cmd("menu", "Returning to menu…"); }, BtnKind.Standard, GlMenu);
-            var rightGrp = new FlowLayoutPanel { Dock = DockStyle.Right, AutoSize = true, WrapContents = false, FlowDirection = FlowDirection.LeftToRight, BackColor = Color.Transparent, Margin = new Padding(0) };
+            var rightGrp = new FlowLayoutPanel { Dock = DockStyle.Right, AutoSize = true, WrapContents = false, FlowDirection = FlowDirection.LeftToRight, BackColor = ColCard, Margin = new Padding(0) };
             rightGrp.Controls.AddRange(new Control[] { btnSave, btnPause, btnResume, btnFast, btnMenu });
             btnMenu.Margin = new Padding(0);
 
