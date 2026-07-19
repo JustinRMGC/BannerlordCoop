@@ -77,17 +77,6 @@
         File="$(ModDir)\SubModule.xml"
         Lines="$([System.IO.File]::ReadAllText('$(SubModuleTemplate)').Replace('${name}','$(ModName)').Replace('${main_class}','$(MainClass)').Replace('${version}','$(ModVersion)').Replace('${game_version}','$(GameVersion)'))"
         Overwrite="true" />
-
-    <!-- Keep the shareable folder ($(CoopShareDir)\Coop) in sync with the freshly-deployed module
-         so an outdated build is never handed out. No-ops when the share folder doesn't exist. -->
-    <ItemGroup Condition="Exists('$(CoopShareDir)')">
-      <ShareSyncFiles Include="$(ModDir)\**\*" />
-    </ItemGroup>
-    <Message Condition="Exists('$(CoopShareDir)')" Importance="high" Text="Syncing share folder -> $(CoopShareDir)\Coop" />
-    <Copy Condition="Exists('$(CoopShareDir)')"
-          SourceFiles="@(ShareSyncFiles)"
-          DestinationFiles="@(ShareSyncFiles->'$(CoopShareDir)\Coop\%(RecursiveDir)%(Filename)%(Extension)')"
-          SkipUnchangedFiles="true" />
   </Target>
 
 </Project>

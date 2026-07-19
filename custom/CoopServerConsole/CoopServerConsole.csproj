@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
+    FONZA-CUSTOM - not part of upstream Bannerlord-Coop. See /custom/CLAUDE.md.
     Fonza Launcher (CoopServerConsole)
     A standalone WINDOWED control panel (single portable .exe) for hosting/
     joining a Bannerlord Coop session, watching logs live, and managing players.

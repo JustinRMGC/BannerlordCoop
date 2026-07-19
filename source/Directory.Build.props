@@ -3,10 +3,5 @@
     <!-- Bannerlord requires a dotted numeric module version. This also seeds the exact build label
          advertised through Steam; the SDK may append source-revision metadata to that label. -->
     <CoopVersion>0.0.2</CoopVersion>
-
-    <!-- Distributable "share" folder kept in sync on every build so an outdated build is never
-         handed out (see Deploy.targets + CoopServerConsole). Overridable; uses the current user's
-         Desktop by default and is a no-op when the folder doesn't exist (CI / other contributors). -->
-    <CoopShareDir Condition="'$(CoopShareDir)' == ''">$(USERPROFILE)\Desktop\Coop-Mod-Share</CoopShareDir>
   </PropertyGroup>
 </Project>

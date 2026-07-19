@@ -2,7 +2,7 @@
 using Common.Logging;
 using Coop.Core;
 using Coop.Core.Common.Session;
-using Coop.Core.Server.Admin;
+using Coop.Core.Server.Admin;   // FONZA-CUSTOM: needed by the bridge hook below (see /custom/CLAUDE.md)
 using Coop.Lib.NoHarmony;
 using Coop.UI.LoadGameUI;
 using GameInterface;
@@ -267,6 +267,9 @@ namespace Coop
 
             Updateables.Add(GameThread.Instance);
 
+            // >>>>>>>>>> FONZA-CUSTOM START — server console bridge hook >>>>>>>>>>
+            // The ONLY edit this fork makes to a core upstream file. Additive + self-guarded.
+            // If a pull conflicts here, keep this whole block. See /custom/CLAUDE.md.
             // Server-only bridge for the external CoopServerConsole control panel: writes a live
             // status/player file and consumes admin commands. Fully guarded — a failure here must
             // never disturb normal play, so it is best-effort and swallows its own errors.
@@ -276,6 +279,8 @@ namespace Coop
                 catch (Exception ex) { Logger.Warning(ex, "[ConsoleBridge] failed to start (ignored)"); }
             }
 
+
+            // <<<<<<<<<< FONZA-CUSTOM END — server console bridge hook <<<<<<<<<<
 
             // Skip startup splash screen
 #if DEBUG

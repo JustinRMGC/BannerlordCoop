@@ -1,0 +1,28 @@
+<Project>
+
+  <!--
+    ==========================================================================
+    FONZA-CUSTOM  ·  NOT part of upstream Bannerlord-Coop. Owned by this fork.
+    Auto-imported by MSBuild for every project under custom/ (currently just the
+    Fonza Launcher). It makes the launcher self-sufficient now that it lives
+    OUTSIDE source/ and no longer inherits source/Directory.Build.props/.targets:
+
+      * CoopVersion  — imported from source/Directory.Build.props so the launcher
+                       exe is stamped with the same version as the mod build it
+                       ships alongside. (Import no-ops if that file ever moves.)
+      * CoopShareDir — defined here so the launcher's own share-folder sync
+                       (DeployConsoleToGame in CoopServerConsole.csproj) keeps
+                       working. Same default/semantics as source/Directory.Build.targets.
+
+    See /custom/CLAUDE.md.
+    ==========================================================================
+  -->
+
+  <Import Project="$(MSBuildThisFileDirectory)..\source\Directory.Build.props"
+          Condition="Exists('$(MSBuildThisFileDirectory)..\source\Directory.Build.props')" />
+
+  <PropertyGroup>
+    <CoopShareDir Condition="'$(CoopShareDir)' == ''">$(USERPROFILE)\Desktop\Coop-Mod-Share</CoopShareDir>
+  </PropertyGroup>
+
+</Project>

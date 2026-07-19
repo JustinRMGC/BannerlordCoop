@@ -1,0 +1,53 @@
+<Project>
+
+  <!--
+    ==========================================================================
+    FONZA-CUSTOM  ·  NOT part of upstream Bannerlord-Coop.
+    Upstream has no Directory.Build.targets; this whole file is owned by this
+    fork (JustinRMGC). It relocates three build customizations OUT of upstream
+    files so `git pull upstream` can never touch them:
+
+      1. CoopShareDir            property     (was in source/Directory.Build.props)
+      2. Share-folder sync       build step   (was in Deploy.targets / DeployToGame)
+      3. TaleWorlds.Localization assembly ref (was in source/Coop.Core/Coop.Core.csproj)
+
+    MSBuild auto-imports this file by walking up from each project in source/,
+    exactly like it already auto-imports source/Directory.Build.props. props and
+    targets are independent auto-imports, so the two coexist with no conflict.
+    See /custom/MANIFEST.md.
+    ==========================================================================
+  -->
+
+  <PropertyGroup>
+    <!-- Distributable "share" folder kept in sync on every build so an outdated build is never
+         handed out. Overridable; defaults to the current user's Desktop and is a no-op when the
+         folder doesn't exist (CI / other contributors). -->
+    <CoopShareDir Condition="'$(CoopShareDir)' == ''">$(USERPROFILE)\Desktop\Coop-Mod-Share</CoopShareDir>
+  </PropertyGroup>
+
+  <!-- The console bridge (ConsoleControlBridge.cs) lives in Coop.Core and constructs TextObjects,
+       so Coop.Core alone needs the TaleWorlds.Localization assembly. Guarded by project name so it
+       is NOT added to the 7 other projects that already reference it (that would duplicate it and
+       fail the build). HintPath is anchored to this file's dir (source\) -> repo-root mb2. -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Coop.Core'">
+    <Reference Include="TaleWorlds.Localization">
+      <HintPath>$(MSBuildThisFileDirectory)..\mb2\bin\Win64_Shipping_Client\TaleWorlds.Localization.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Runs right after Deploy.targets' DeployToGame, only in the projects that deploy (Coop and
+       MissionTestMod). In projects where DeployToGame does not exist, AfterTargets simply never
+       fires (no error). $(ModDir) is defined by Deploy.targets in the same project evaluation.
+       No-ops when the share folder is absent. This reproduces the block previously inlined at the
+       end of DeployToGame in Deploy.targets. -->
+  <Target Name="FonzaSyncShareFolder" AfterTargets="DeployToGame" Condition="Exists('$(CoopShareDir)')">
+    <ItemGroup>
+      <FonzaShareSyncFiles Include="$(ModDir)\**\*" />
+    </ItemGroup>
+    <Message Importance="high" Text="[FONZA-CUSTOM] Syncing share folder -&gt; $(CoopShareDir)\Coop" />
+    <Copy SourceFiles="@(FonzaShareSyncFiles)"
+          DestinationFiles="@(FonzaShareSyncFiles-&gt;'$(CoopShareDir)\Coop\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

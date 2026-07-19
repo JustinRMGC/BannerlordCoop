@@ -1,3 +1,8 @@
+// === FONZA-CUSTOM ============================================================
+// Not part of upstream Bannerlord-Coop. Owned by this fork (JustinRMGC).
+// Fonza Launcher / Coop server console.  Docs: /custom/CLAUDE.md
+// =============================================================================
+
 using System;
 using System.Diagnostics;
 using System.IO;

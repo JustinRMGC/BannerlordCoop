@@ -1,3 +1,8 @@
+// === FONZA-CUSTOM ============================================================
+// Not part of upstream Bannerlord-Coop. Owned by this fork (JustinRMGC).
+// Fonza Launcher / Coop server console.  Docs: /custom/CLAUDE.md
+// =============================================================================
+
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -682,8 +687,6 @@ namespace CoopServerConsole
         public static Color Lighten(Color c, float f) { return Color.FromArgb(c.A, Clamp(c.R * f), Clamp(c.G * f), Clamp(c.B * f)); }
         private static int Clamp(float v) { return (int)Math.Max(0, Math.Min(255, v)); }
     }
-
-    internal static class Paths2 { } // reserved
 
     internal sealed class RoundedButton : Button
     {
