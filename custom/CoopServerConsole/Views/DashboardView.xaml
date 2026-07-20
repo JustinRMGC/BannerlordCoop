@@ -1,0 +1,62 @@
+<UserControl x:Class="CoopServerConsole.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CoopServerConsole">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+
+            <!-- SERVER -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                <StackPanel>
+                    <DockPanel LastChildFill="False" Margin="0,0,0,12">
+                        <TextBlock DockPanel.Dock="Left" Style="{StaticResource Text.Section}" Text="Server" VerticalAlignment="Center"/>
+                        <local:StatusPill DockPanel.Dock="Right" Kind="{Binding ServerKind}" Text="{Binding ServerPill}"/>
+                    </DockPanel>
+                    <TextBlock Style="{StaticResource Text.Secondary}" Text="{Binding ServerDetail}" Margin="0,0,0,2"/>
+                    <TextBlock Style="{StaticResource Text.Caption}" Text="{Binding ServerSummary}" Margin="0,0,0,18"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource Btn.Success}" Content="Start Server" local:Ui.Glyph="{StaticResource Icon.Play}"
+                                Command="{Binding StartServerCommand}" IsEnabled="{Binding CanStartServer}" Margin="0,0,10,0"/>
+                        <Button Style="{StaticResource Btn.Secondary}" Content="Stop Server" local:Ui.Glyph="{StaticResource Icon.Stop}"
+                                Command="{Binding StopServerCommand}" IsEnabled="{Binding CanStopServer}" Margin="0,0,10,0"/>
+                        <Button Style="{StaticResource Btn.Secondary}" Content="Restart" local:Ui.Glyph="{StaticResource Icon.Restart}"
+                                Command="{Binding RestartServerCommand}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- CLIENT -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                <StackPanel>
+                    <DockPanel LastChildFill="False" Margin="0,0,0,12">
+                        <TextBlock DockPanel.Dock="Left" Style="{StaticResource Text.Section}" Text="Client" VerticalAlignment="Center"/>
+                        <local:StatusPill DockPanel.Dock="Right" Kind="{Binding ClientKind}" Text="{Binding ClientPill}"/>
+                    </DockPanel>
+                    <TextBlock Style="{StaticResource Text.Secondary}" Text="{Binding ClientDetail}" Margin="0,0,0,18"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource Btn.Primary}" Content="Start Client" local:Ui.Glyph="{StaticResource Icon.Play}"
+                                Command="{Binding StartClientCommand}" IsEnabled="{Binding CanStartClient}" Margin="0,0,10,0"/>
+                        <Button Style="{StaticResource Btn.Secondary}" Content="Stop Client" local:Ui.Glyph="{StaticResource Icon.Stop}"
+                                Command="{Binding StopClientCommand}" IsEnabled="{Binding CanStopClient}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- TOOLS -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Text.Section}" Text="Tools" Margin="0,0,0,14"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource Btn.Secondary}" Content="Open Saves" local:Ui.Glyph="{StaticResource Icon.Folder}"
+                                Command="{Binding OpenSavesCommand}" Margin="0,0,10,0"/>
+                        <Button Style="{StaticResource Btn.Secondary}" Content="Open Logs" local:Ui.Glyph="{StaticResource Icon.Folder}"
+                                Command="{Binding OpenLogsCommand}" Margin="0,0,10,0"/>
+                        <Button Style="{StaticResource Btn.Secondary}" Content="Unblock DLLs" local:Ui.Glyph="{StaticResource Icon.Unlock}"
+                                Command="{Binding UnblockCommand}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

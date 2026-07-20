@@ -1,0 +1,159 @@
+<!-- FONZA-CUSTOM · Players page: live connected-players table + admin actions.
+     Mirrors DashboardView conventions. No DataContext set here (the shell supplies
+     a PlayersViewModel via DataTemplate). -->
+<UserControl x:Class="CoopServerConsole.Views.PlayersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CoopServerConsole"
+             xmlns:self="clr-namespace:CoopServerConsole.Views">
+
+    <UserControl.Resources>
+        <!-- Empty-state text tint: amber when the bridge is present-but-stale, muted otherwise. -->
+        <self:EmptyKindToBrushConverter x:Key="EmptyBrush"/>
+
+        <!-- Per-row action buttons: faint until the row is hovered. -->
+        <Style x:Key="RowActions" TargetType="StackPanel">
+            <Setter Property="Opacity" Value="0.35"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
+                    <Setter Property="Opacity" Value="1"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource Card}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- INFO LINE (only while the bridge is live) -->
+            <TextBlock Grid.Row="0" Style="{StaticResource Text.Secondary}" Margin="2,0,2,14"
+                       Text="{Binding InfoText}" TextTrimming="CharacterEllipsis"
+                       Visibility="{Binding BridgeLive, Converter={StaticResource BoolToVis}}"/>
+
+            <!-- TABLE (recessed well) + centered empty state -->
+            <Border Grid.Row="1" Style="{StaticResource Well}" Padding="6,4" MinHeight="240">
+                <Grid>
+                    <DataGrid ItemsSource="{Binding Players}"
+                              SelectedItem="{Binding SelectedPlayer, Mode=TwoWay}"
+                              AutoGenerateColumns="False" HeadersVisibility="Column"
+                              Background="Transparent" BorderThickness="0">
+                        <DataGrid.Columns>
+
+                            <!-- status dot -->
+                            <DataGridTemplateColumn Header="" Width="26">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Ellipse Width="9" Height="9" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                 Fill="{Binding Kind, Converter={StaticResource StatusBrush}, ConverterParameter=dot}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- index -->
+                            <DataGridTemplateColumn Header="#" Width="40">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Index}" VerticalAlignment="Center"
+                                                   Foreground="{StaticResource TextMutedBrush}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- name -->
+                            <DataGridTemplateColumn Header="Name" Width="2*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- clan -->
+                            <DataGridTemplateColumn Header="Clan" Width="1.4*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Clan}" VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- state -->
+                            <DataGridTemplateColumn Header="State" Width="1.2*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding State}" VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- row actions -->
+                            <DataGridTemplateColumn Header="" Width="96">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                                                    Style="{StaticResource RowActions}">
+                                            <Button Style="{StaticResource Btn.Subtle}" Width="34" Height="28" Padding="0"
+                                                    ToolTip="Rename" local:Ui.Glyph="{StaticResource Icon.Rename}"
+                                                    Command="{Binding DataContext.RenameRowCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                    CommandParameter="{Binding}"/>
+                                            <Button Style="{StaticResource Btn.Danger}" Width="34" Height="28" Padding="0" Margin="6,0,0,0"
+                                                    ToolTip="Kick" local:Ui.Glyph="{StaticResource Icon.Kick}"
+                                                    Command="{Binding DataContext.KickRowCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- empty / not-live state -->
+                    <TextBlock Style="{StaticResource Text.Secondary}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="440" Margin="24"
+                               TextWrapping="Wrap" TextAlignment="Center"
+                               Text="{Binding EmptyText}"
+                               Foreground="{Binding EmptyKind, Converter={StaticResource EmptyBrush}}"
+                               Visibility="{Binding EmptyVisible, Converter={StaticResource BoolToVis}}"/>
+                </Grid>
+            </Border>
+
+            <!-- ACTION BAR -->
+            <DockPanel Grid.Row="2" LastChildFill="False" Margin="0,16,0,0">
+                <!-- player-specific -->
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                    <Button Style="{StaticResource Btn.Secondary}" Content="Rename" local:Ui.Glyph="{StaticResource Icon.Rename}"
+                            Command="{Binding RenameCommand}" IsEnabled="{Binding BridgeLive}" Margin="0,0,10,0"/>
+                    <Button Style="{StaticResource Btn.Danger}" Content="Kick" local:Ui.Glyph="{StaticResource Icon.Kick}"
+                            Command="{Binding KickCommand}" IsEnabled="{Binding BridgeLive}"/>
+                </StackPanel>
+
+                <!-- session -->
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Style="{StaticResource Btn.Secondary}" Content="Save" local:Ui.Glyph="{StaticResource Icon.Save}"
+                            Command="{Binding SaveCommand}" IsEnabled="{Binding BridgeLive}" Margin="0,0,10,0"/>
+                    <Button Style="{StaticResource Btn.Secondary}" Content="Pause" local:Ui.Glyph="{StaticResource Icon.Pause}"
+                            Command="{Binding PauseCommand}" IsEnabled="{Binding BridgeLive}" Margin="0,0,10,0"/>
+                    <Button Style="{StaticResource Btn.Secondary}" Content="Resume" local:Ui.Glyph="{StaticResource Icon.Play}"
+                            Command="{Binding ResumeCommand}" IsEnabled="{Binding BridgeLive}" Margin="0,0,10,0"/>
+                    <Button Style="{StaticResource Btn.Secondary}" Content="Fast 2&#215;" local:Ui.Glyph="{StaticResource Icon.Fast}"
+                            Command="{Binding FastCommand}" IsEnabled="{Binding BridgeLive}" Margin="0,0,10,0"/>
+                    <Button Style="{StaticResource Btn.Danger}" Content="Main menu" local:Ui.Glyph="{StaticResource Icon.Menu}"
+                            Command="{Binding MenuCommand}" IsEnabled="{Binding BridgeLive}"/>
+                </StackPanel>
+            </DockPanel>
+
+        </Grid>
+    </Border>
+</UserControl>

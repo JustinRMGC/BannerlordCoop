@@ -23,26 +23,46 @@ Owner: JustinRMGC. Docs: `/custom/CLAUDE.md`.
 Files that are **100% ours** — upstream has no file at these paths. Because upstream contributes
 nothing at these paths, a merge/pull **can never conflict** on them; they only ever change if *we*
 change them, or vanish if someone deletes them. The build/bridge-critical set is enumerated
-authoritatively in `custom/scripts/Common.ps1` as `$FonzaNewFiles` (13 entries) and verified for
+authoritatively in `custom/scripts/Common.ps1` as `$FonzaNewFiles` and verified for
 presence on every pull.
 
 ### Launcher — `custom/CoopServerConsole/*` (the external "Fonza Launcher" control panel)
 
-Standalone `net472` WinExe (single portable `FonzaLauncher.exe`). It does **not** load into the
-game — it launches `Bannerlord.exe` as a child process, tails the mod's logs, and talks to the
-in-mod bridge via files.
+Standalone `net472` **WPF** WinExe (single portable `FonzaLauncher.exe`, **zero NuGet dependencies** —
+WPF ships inside the .NET Framework already present on every Win10/11, so the exe is still zero-install).
+It does **not** load into the game — it launches `Bannerlord.exe` as a child process, tails the mod's
+logs, and talks to the in-mod bridge via files. **Rebuilt from WinForms → WPF (MVVM) on 2026-07-20**; the
+UI-agnostic backend classes were reused byte-for-byte (only the presentation layer changed).
+
+**App shell & bootstrap**
 
 | Path | What it is | Purpose (one line) |
 |------|-----------|--------------------|
-| `custom/CoopServerConsole/Program.cs` | WinForms entry point | `STAThread Main` — boots the launcher UI. |
-| `custom/CoopServerConsole/MainForm.cs` | WinForms UI | Fluent / Windows-11-style control panel (nav rail + card pages): launch game as server/client, tail logs live, manage players via the bridge. |
+| `App.xaml` / `App.xaml.cs` | WPF entry point | Boots the app; preserves the CLI contract: `--selftest` (construct-and-exit-0 build check) and `--tab <name>` deep-link; dark fatal handler. |
+| `MainWindow.xaml` / `.cs` | Shell window | Left nav rail (brand + nav + live STATUS block), content status-header, page frame (rise+fade transition), footer status line; applies Win11 dark title bar + rounded corners. |
+| `Native.cs` | DWM interop | Dark title bar + rounded corners (+ optional Mica) via `DwmSetWindowAttribute`. |
+| `Ui.cs` | Attached properties | `Ui.Glyph` (a button's leading Segoe Fluent glyph) + `Ui.CornerRadius`, read by the control templates. |
+| `Services.cs` | UI services | `LauncherServices` (shared cfg/launcher/bin/snapshot + `ShowToast`/`Commit`/`Confirm`/`Prompt`), `ITickable`, `ToastKind`. |
+
+**Design system** (bespoke, zero-dependency): `Theme/Theme.xaml` (Radix-slate + indigo tokens, fonts, radii), `Theme/Controls.xaml` (all control styles/templates: buttons, inputs, toggle, segmented, card, chip, dark scrollbars, DataGrid), `Theme/Icons.xaml` (Segoe Fluent glyph codepoints).
+
+**MVVM**: `Mvvm/ViewModelBase.cs`, `Mvvm/RelayCommand.cs`, `Mvvm/Converters.cs`.
+
+**View-models**: `ViewModels/MainViewModel.cs` (shell — nav, single 500 ms tick, rail/header status, toast) + `DashboardViewModel`, `LogViewModel` (one class, server & client instances), `PlayersViewModel`, `SettingsViewModel` (+ `PlaceholderViewModel`).
+
+**Views, controls & dialog**: `Views/{Dashboard,Log,Players,Settings,Placeholder}View.xaml`; `Controls/StatusPill.xaml` (tinted status dot+label); `Dialogs/FonzaDialog.xaml` (dark confirm/input modal, replaces the light system `MessageBox`).
+
+**Reused, UI-agnostic backend** (unchanged from the WinForms build):
+
+| Path | What it is | Purpose (one line) |
+|------|-----------|--------------------|
 | `custom/CoopServerConsole/GameLauncher.cs` | Process manager | Launches & tracks Bannerlord as server/client child processes using the same args/module list as the `start-*.bat` launchers. |
 | `custom/CoopServerConsole/ControlChannel.cs` | Bridge client (file-based) | Parses the status/player snapshot the in-mod bridge writes (`PlayerInfo`/`StatusSnapshot`) and sends admin commands back to it. |
 | `custom/CoopServerConsole/LogFollower.cs` | Log tailer | Incrementally reads newly-appended log lines with shared read/write/delete access; resets when the file shrinks or is recreated. |
-| `custom/CoopServerConsole/LogInsights.cs` | Log parser | Distills a Coop server log into a `ServerStatus` digest (build, public IP/port, map/lobby state, error/warning counts, recent activity). |
+| `custom/CoopServerConsole/LogInsights.cs` | Log parser | Level/noise classification for live colorized tails (+ a `ServerStatus` digest helper). |
 | `custom/CoopServerConsole/AppConfig.cs` | Settings | Hand-rolled `key=value` config persisted next to the exe (`coopconsole.cfg`) so the tool stays a single dependency-free exe. |
 | `custom/CoopServerConsole/Paths.cs` | Path resolver | Resolves game / module / log / save locations relative to where the exe runs, or from an explicitly configured game root. |
-| `custom/CoopServerConsole/CoopServerConsole.csproj` | Project file | Standalone `net472` `WinExe` (AssemblyName `FonzaLauncher`); no `ProjectReference`s; self-deploys into `mb2\Modules\Coop` and the share folder, no-op when the game junction is absent. |
+| `custom/CoopServerConsole/CoopServerConsole.csproj` | Project file | Standalone `net472` `WinExe` with `<UseWPF>true</UseWPF>` (AssemblyName `FonzaLauncher`); no NuGet/`ProjectReference`s; self-deploys into `mb2\Modules\Coop` + the share folder, no-op when the game junction is absent. |
 
 ### Build isolation
 

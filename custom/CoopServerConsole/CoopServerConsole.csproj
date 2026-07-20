@@ -16,6 +16,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
     <ApplicationIcon>FonzaLauncher.ico</ApplicationIcon>
     <TargetFramework>net472</TargetFramework>
     <RootNamespace>CoopServerConsole</RootNamespace>
@@ -30,10 +31,11 @@
     <Version Condition="'$(CoopVersion)' != ''">$(CoopVersion)</Version>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Drawing" />
-  </ItemGroup>
+  <!-- WPF assemblies (PresentationCore / PresentationFramework / WindowsBase / System.Xaml)
+       are referenced automatically by <UseWPF>true</UseWPF> above. Intentionally ZERO NuGet
+       packages: the produced exe stays a single, portable, dependency-free binary that runs
+       with no install on any Windows 10/11 (the .NET Framework 4.x + WPF ship in-box). -->
+
 
   <!--
     Deploy the console into the live module next to start-*.bat, mirroring

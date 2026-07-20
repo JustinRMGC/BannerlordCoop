@@ -45,15 +45,43 @@ $script:FonzaNewFiles = @(
     'source/Directory.Build.targets',
     'custom/Directory.Build.props',
     'custom/FonzaLauncher.sln',
+    'custom/CoopServerConsole/CoopServerConsole.csproj',
+    # WPF app shell + bootstrap (replaced the old WinForms MainForm.cs/Program.cs, 2026-07-20)
+    'custom/CoopServerConsole/App.xaml',
+    'custom/CoopServerConsole/App.xaml.cs',
+    'custom/CoopServerConsole/MainWindow.xaml',
+    'custom/CoopServerConsole/MainWindow.xaml.cs',
+    'custom/CoopServerConsole/Native.cs',
+    'custom/CoopServerConsole/Ui.cs',
+    'custom/CoopServerConsole/Services.cs',
+    # design system (bespoke, zero-dependency)
+    'custom/CoopServerConsole/Theme/Theme.xaml',
+    'custom/CoopServerConsole/Theme/Controls.xaml',
+    'custom/CoopServerConsole/Theme/Icons.xaml',
+    # MVVM infrastructure
+    'custom/CoopServerConsole/Mvvm/ViewModelBase.cs',
+    'custom/CoopServerConsole/Mvvm/RelayCommand.cs',
+    'custom/CoopServerConsole/Mvvm/Converters.cs',
+    # view-models
+    'custom/CoopServerConsole/ViewModels/MainViewModel.cs',
+    'custom/CoopServerConsole/ViewModels/DashboardViewModel.cs',
+    'custom/CoopServerConsole/ViewModels/LogViewModel.cs',
+    'custom/CoopServerConsole/ViewModels/PlayersViewModel.cs',
+    'custom/CoopServerConsole/ViewModels/SettingsViewModel.cs',
+    # views + reusable controls + dialog
+    'custom/CoopServerConsole/Views/DashboardView.xaml',
+    'custom/CoopServerConsole/Views/LogView.xaml',
+    'custom/CoopServerConsole/Views/PlayersView.xaml',
+    'custom/CoopServerConsole/Views/SettingsView.xaml',
+    'custom/CoopServerConsole/Controls/StatusPill.xaml',
+    'custom/CoopServerConsole/Dialogs/FonzaDialog.xaml',
+    # reused, UI-agnostic backend (unchanged from the WinForms build)
     'custom/CoopServerConsole/AppConfig.cs',
     'custom/CoopServerConsole/ControlChannel.cs',
-    'custom/CoopServerConsole/CoopServerConsole.csproj',
     'custom/CoopServerConsole/GameLauncher.cs',
     'custom/CoopServerConsole/LogFollower.cs',
     'custom/CoopServerConsole/LogInsights.cs',
-    'custom/CoopServerConsole/MainForm.cs',
-    'custom/CoopServerConsole/Paths.cs',
-    'custom/CoopServerConsole/Program.cs'
+    'custom/CoopServerConsole/Paths.cs'
 )
 
 # UPSTREAM files this fork edits in-place (must survive pulls; verified by markers).

@@ -1,0 +1,91 @@
+<!-- FONZA-CUSTOM · Fonza Launcher design tokens. Dark-first. See /custom/CLAUDE.md
+     Palette: Radix "slate" neutrals + indigo accent + Radix status hues.
+     Change the single Accent* block below to re-brand (e.g. to the old cyan). -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ============================ SURFACES ============================ -->
+    <SolidColorBrush x:Key="BgInsetBrush"       Color="#0C0D0F"/> <!-- recessed well: logs / table body -->
+    <SolidColorBrush x:Key="BgBaseBrush"        Color="#111113"/> <!-- canvas -->
+    <SolidColorBrush x:Key="BgRailBrush"        Color="#0E0F11"/> <!-- fixed chrome: left rail -->
+    <SolidColorBrush x:Key="Surface1Brush"      Color="#18191B"/> <!-- cards / panels / action bars -->
+    <SolidColorBrush x:Key="Surface2Brush"      Color="#212225"/> <!-- elevated: popovers, inputs, hover-raised rows, nav-selected -->
+    <SolidColorBrush x:Key="Surface2HoverBrush" Color="#272A2D"/>
+    <SolidColorBrush x:Key="NavHoverBrush"      Color="#1A1B1E"/>
+    <SolidColorBrush x:Key="BtnPressBrush"      Color="#1B1C1F"/>
+    <SolidColorBrush x:Key="DisabledBgBrush"    Color="#1A1B1E"/>
+
+    <!-- ============================ BORDERS ============================= -->
+    <SolidColorBrush x:Key="BorderSubtleBrush"  Color="#363A3F"/> <!-- card strokes, row separators -->
+    <SolidColorBrush x:Key="BorderStrongBrush"  Color="#43484E"/> <!-- input borders, control outlines -->
+
+    <!-- ============================= TEXT =============================== -->
+    <SolidColorBrush x:Key="TextPrimaryBrush"   Color="#EDEEF0"/> <!-- titles, values (near-white, never pure white) -->
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#B0B4BA"/> <!-- body, help, table cells -->
+    <SolidColorBrush x:Key="TextMutedBrush"     Color="#777B84"/> <!-- captions, timestamps, disabled -->
+    <SolidColorBrush x:Key="DisabledTextBrush"  Color="#5A5E66"/>
+
+    <!-- ===================== ACCENT (indigo) ===========================
+         Re-brand here. Old cyan alt: Accent #4CC2FF / hover #6BCEFF / pressed #33A9E6 / text #4CC2FF
+         Azure alt: base #0078D4 / hover #0091F8 / pressed #0067C0 / text #4CC2FF -->
+    <SolidColorBrush x:Key="AccentBrush"        Color="#3E63DD"/>
+    <SolidColorBrush x:Key="AccentHoverBrush"   Color="#5472E4"/>
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="#3A5BCB"/>
+    <SolidColorBrush x:Key="AccentTextBrush"    Color="#9EB1FF"/> <!-- accent-colored text/small glyphs on dark -->
+    <SolidColorBrush x:Key="SelectionTintBrush" Color="#1A2044"/> <!-- indigo-tinted row selection -->
+
+    <!-- ========================= STATUS ================================ -->
+    <SolidColorBrush x:Key="SuccessSolidBrush"  Color="#30A46C"/>
+    <SolidColorBrush x:Key="SuccessTextBrush"   Color="#3DD68C"/>
+    <SolidColorBrush x:Key="SuccessTintBrush"   Color="#132D21"/>
+    <SolidColorBrush x:Key="SuccessTintBorderBrush" Color="#20573E"/>
+
+    <SolidColorBrush x:Key="WarnSolidBrush"     Color="#FFC53D"/>
+    <SolidColorBrush x:Key="WarnTextBrush"      Color="#FFCA16"/>
+    <SolidColorBrush x:Key="WarnTintBrush"      Color="#302008"/>
+    <SolidColorBrush x:Key="WarnTintBorderBrush" Color="#5C4310"/>
+
+    <SolidColorBrush x:Key="ErrorSolidBrush"    Color="#E5484D"/>
+    <SolidColorBrush x:Key="ErrorTextBrush"     Color="#FF9592"/>
+    <SolidColorBrush x:Key="ErrorTintBrush"     Color="#3B1219"/>
+    <SolidColorBrush x:Key="ErrorTintBorderBrush" Color="#72232D"/>
+
+    <SolidColorBrush x:Key="InfoSolidBrush"     Color="#0090FF"/>
+    <SolidColorBrush x:Key="InfoTextBrush"      Color="#70B8FF"/>
+    <SolidColorBrush x:Key="InfoTintBrush"      Color="#0D2847"/>
+    <SolidColorBrush x:Key="InfoTintBorderBrush" Color="#10365F"/>
+
+    <!-- ===================== LOG-LEVEL COLORS ========================== -->
+    <SolidColorBrush x:Key="LogInfBrush"    Color="#CDD1D8"/>
+    <SolidColorBrush x:Key="LogMutedBrush"  Color="#777B84"/>
+    <SolidColorBrush x:Key="LogWrnBrush"    Color="#FFCA16"/>
+    <SolidColorBrush x:Key="LogErrBrush"    Color="#FF9592"/>
+    <SolidColorBrush x:Key="LogFtlBrush"    Color="#FF7DC4"/>
+    <SolidColorBrush x:Key="LogGutterBrush" Color="#6E7681"/>
+    <SolidColorBrush x:Key="LogOkBrush"     Color="#3DD68C"/>
+
+    <!-- ============================ FONTS ==============================
+         WPF honors comma-separated FontFamily fallback (unlike GDI+). Segoe UI
+         Variable exists on Win11; falls back to Segoe UI on Win10. -->
+    <FontFamily x:Key="FontDisplay">Segoe UI Variable Display, Segoe UI, Tahoma, Arial</FontFamily>
+    <FontFamily x:Key="FontText">Segoe UI Variable Text, Segoe UI, Tahoma, Arial</FontFamily>
+    <FontFamily x:Key="FontSmall">Segoe UI Variable Small, Segoe UI, Tahoma, Arial</FontFamily>
+    <FontFamily x:Key="FontMono">Cascadia Mono, Cascadia Code, Consolas, Courier New</FontFamily>
+    <FontFamily x:Key="FontIcon">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+    <!-- ========================= TYPE SCALE ============================ -->
+    <sys:Double x:Key="Size.Title">20</sys:Double>
+    <sys:Double x:Key="Size.Wordmark">16</sys:Double>
+    <sys:Double x:Key="Size.Section">14</sys:Double>
+    <sys:Double x:Key="Size.Body">14</sys:Double>
+    <sys:Double x:Key="Size.Caption">12</sys:Double>
+    <sys:Double x:Key="Size.Micro">11</sys:Double>
+    <sys:Double x:Key="Size.Mono">13</sys:Double>
+
+    <!-- ========================== RADII ================================ -->
+    <CornerRadius x:Key="Radius.Chip">6</CornerRadius>
+    <CornerRadius x:Key="Radius.Control">8</CornerRadius>
+    <CornerRadius x:Key="Radius.Card">12</CornerRadius>
+
+</ResourceDictionary>

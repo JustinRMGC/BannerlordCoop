@@ -1,0 +1,13 @@
+<!-- FONZA-CUSTOM · Fonza Launcher (WPF). Not part of upstream Bannerlord-Coop. See /custom/CLAUDE.md -->
+<Application x:Class="CoopServerConsole.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Controls.xaml owns Theme.xaml + Icons.xaml so StaticResource lookups resolve. -->
+                <ResourceDictionary Source="Theme/Controls.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

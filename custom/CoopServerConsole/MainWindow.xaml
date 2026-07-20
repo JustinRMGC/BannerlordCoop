@@ -1,0 +1,184 @@
+<Window x:Class="CoopServerConsole.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:CoopServerConsole"
+        xmlns:vm="clr-namespace:CoopServerConsole.ViewModels"
+        xmlns:views="clr-namespace:CoopServerConsole.Views"
+        Title="Fonza Launcher"
+        Width="1060" Height="700" MinWidth="900" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Ideal"
+        TextElement.Foreground="{StaticResource TextPrimaryBrush}"
+        TextElement.FontFamily="{StaticResource FontText}"
+        TextElement.FontSize="14"
+        Background="{StaticResource BgBaseBrush}">
+
+    <Window.Resources>
+        <!-- Left-rail navigation item -->
+        <Style x:Key="NavItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Margin" Value="10,2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Grid>
+                            <Border x:Name="bar" Width="3" HorizontalAlignment="Left" CornerRadius="2"
+                                    Background="{StaticResource AccentBrush}" Visibility="Collapsed" Margin="0,9"/>
+                            <Border x:Name="bg" CornerRadius="8" Background="Transparent">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
+                                    <TextBlock x:Name="g" FontFamily="{StaticResource FontIcon}" FontSize="17" Width="28"
+                                               Foreground="{StaticResource TextMutedBrush}" Text="{Binding Glyph}" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="t" Text="{Binding Label}" FontFamily="{StaticResource FontText}"
+                                               FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="{StaticResource NavHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="{StaticResource Surface2Brush}"/>
+                                <Setter TargetName="bar" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="g" Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+                                <Setter TargetName="t" Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- page VM -> View -->
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}"><views:DashboardView/></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:PlaceholderViewModel}"><views:PlaceholderView/></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:LogViewModel}"><views:LogView/></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:PlayersViewModel}"><views:PlayersView/></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}"><views:SettingsView/></DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ============ MAIN (rail + content) ============ -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="240"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT RAIL -->
+            <Border Grid.Column="0" Background="{StaticResource BgRailBrush}"
+                    BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="0,0,1,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- brand -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="22,22,22,16">
+                        <Border Width="32" Height="32" CornerRadius="9" Background="{StaticResource AccentBrush}" Margin="0,0,11,0" VerticalAlignment="Center">
+                            <TextBlock Text="{StaticResource Icon.Server}" FontFamily="{StaticResource FontIcon}" FontSize="16"
+                                       Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Style="{StaticResource Text.Wordmark}" Text="Fonza Launcher"/>
+                            <TextBlock Style="{StaticResource Text.Caption}" Text="{Binding BrandVersion, StringFormat='Bannerlord · {0}'}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- nav -->
+                    <ListBox Grid.Row="1" Background="Transparent" BorderThickness="0" Margin="0,6,0,0"
+                             ItemsSource="{Binding Nav}" SelectedItem="{Binding SelectedNav, Mode=TwoWay}"
+                             ItemContainerStyle="{StaticResource NavItemStyle}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Disabled"/>
+
+                    <!-- status block -->
+                    <StackPanel Grid.Row="2" Margin="22,0,22,20">
+                        <Border Height="1" Background="{StaticResource BorderSubtleBrush}" Margin="0,0,0,16"/>
+                        <TextBlock Style="{StaticResource Text.Micro}" Text="STATUS" Margin="0,0,0,12"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,11,0"
+                                     Fill="{Binding ServerKind, Converter={StaticResource StatusBrush}, ConverterParameter=dot}"/>
+                            <TextBlock Text="Server" Width="52" FontSize="12" VerticalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding ServerText}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"
+                                       Foreground="{Binding ServerKind, Converter={StaticResource StatusBrush}, ConverterParameter=text}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,11,0"
+                                     Fill="{Binding ClientKind, Converter={StaticResource StatusBrush}, ConverterParameter=dot}"/>
+                            <TextBlock Text="Client" Width="52" FontSize="12" VerticalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding ClientText}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"
+                                       Foreground="{Binding ClientKind, Converter={StaticResource StatusBrush}, ConverterParameter=text}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,11,0"
+                                     Fill="{Binding EngineKind, Converter={StaticResource StatusBrush}, ConverterParameter=dot}"/>
+                            <TextBlock Text="Engine" Width="52" FontSize="12" VerticalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding EngineText}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"
+                                       Foreground="{Binding EngineKind, Converter={StaticResource StatusBrush}, ConverterParameter=text}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- CONTENT -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- content status header -->
+                <Grid Grid.Row="0" Margin="24,20,24,10">
+                    <TextBlock Style="{StaticResource Text.Title}" Text="{Binding HeaderTitle}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding HeaderDetail}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center" Margin="0,0,12,0"
+                                   Visibility="{Binding HeaderDetailVisible, Converter={StaticResource BoolToVis}}"/>
+                        <local:StatusPill Kind="{Binding HeaderKind}" Text="{Binding HeaderPill}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- page host (subtle rise+fade on each nav switch) -->
+                <ContentControl Grid.Row="1" Content="{Binding CurrentPage, NotifyOnTargetUpdated=True}" Margin="24,6,24,16"
+                                RenderTransformOrigin="0.5,0.5">
+                    <ContentControl.RenderTransform>
+                        <TranslateTransform x:Name="PageShift"/>
+                    </ContentControl.RenderTransform>
+                    <ContentControl.Triggers>
+                        <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.18"/>
+                                    <DoubleAnimation Storyboard.TargetName="PageShift" Storyboard.TargetProperty="Y" From="12" To="0" Duration="0:0:0.22">
+                                        <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ContentControl.Triggers>
+                </ContentControl>
+            </Grid>
+        </Grid>
+
+        <!-- ============ FOOTER (toast / status line) ============ -->
+        <Border Grid.Row="1" Background="{StaticResource BgRailBrush}"
+                BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="0,1,0,0" Height="30">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
+                <Ellipse Width="7" Height="7" VerticalAlignment="Center" Margin="0,0,8,0"
+                         Fill="{Binding ToastKindStr, Converter={StaticResource StatusBrush}, ConverterParameter=dot}"/>
+                <TextBlock Text="{Binding ToastText}" Style="{StaticResource Text.Caption}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

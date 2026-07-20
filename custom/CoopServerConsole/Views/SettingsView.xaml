@@ -1,0 +1,88 @@
+<UserControl x:Class="CoopServerConsole.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CoopServerConsole">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+
+            <!-- SAVE FILE -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Text.Section}" Text="Save file" Margin="0,0,0,14"/>
+                    <TextBlock Style="{StaticResource Text.Body}" Text="Save file name" Margin="0,0,0,6"/>
+                    <TextBox Style="{StaticResource Field}" Width="320" HorizontalAlignment="Left"
+                             Text="{Binding SaveName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Style="{StaticResource Text.Help}" Margin="0,6,0,0" MaxWidth="420" HorizontalAlignment="Left"
+                               Text="The save the server loads &amp; hosts — must exist in Game Saves as &lt;name&gt;.sav"/>
+                </StackPanel>
+            </Border>
+
+            <!-- HOSTING -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Text.Section}" Text="Hosting" Margin="0,0,0,14"/>
+
+                    <TextBlock Style="{StaticResource Text.Body}" Text="Visibility" Margin="0,0,0,6"/>
+                    <ListBox Style="{StaticResource Segmented}"
+                             ItemsSource="{Binding VisibilityOptions}"
+                             SelectedItem="{Binding VisibilityDisplay, Mode=TwoWay}"/>
+                    <TextBlock Style="{StaticResource Text.Help}" Margin="0,6,0,14" MaxWidth="420" HorizontalAlignment="Left"
+                               Text="Who can find and join your session."/>
+
+                    <TextBlock Style="{StaticResource Text.Body}" Text="Password" Margin="0,0,0,6"/>
+                    <TextBox Style="{StaticResource Field}" Width="320" HorizontalAlignment="Left"
+                             Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Style="{StaticResource Text.Help}" Margin="0,6,0,0" MaxWidth="420" HorizontalAlignment="Left"
+                               Text="Optional. Leave blank for no password."/>
+                </StackPanel>
+            </Border>
+
+            <!-- LOGS -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Text.Section}" Text="Logs" Margin="0,0,0,14"/>
+
+                    <DockPanel LastChildFill="False" Width="420" HorizontalAlignment="Left">
+                        <TextBlock DockPanel.Dock="Left" Style="{StaticResource Text.Body}" Text="Hide debug log lines" VerticalAlignment="Center"/>
+                        <CheckBox DockPanel.Dock="Right" Style="{StaticResource Toggle}" VerticalAlignment="Center"
+                                  IsChecked="{Binding HideDebugLogLines, Mode=TwoWay}"/>
+                    </DockPanel>
+                    <TextBlock Style="{StaticResource Text.Help}" Margin="0,4,0,14" MaxWidth="420" HorizontalAlignment="Left"
+                               Text="Hides the flood of DBG lines from the log views."/>
+
+                    <DockPanel LastChildFill="False" Width="420" HorizontalAlignment="Left">
+                        <TextBlock DockPanel.Dock="Left" Style="{StaticResource Text.Body}" Text="Hide sync noise" VerticalAlignment="Center"/>
+                        <CheckBox DockPanel.Dock="Right" Style="{StaticResource Toggle}" VerticalAlignment="Center"
+                                  IsChecked="{Binding HideSyncNoise, Mode=TwoWay}"/>
+                    </DockPanel>
+                    <TextBlock Style="{StaticResource Text.Help}" Margin="0,4,0,0" MaxWidth="420" HorizontalAlignment="Left"
+                               Text="Hides the mod's routine sync-layer spam."/>
+                </StackPanel>
+            </Border>
+
+            <!-- ADVANCED -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Text.Section}" Text="Advanced" Margin="0,0,0,14"/>
+
+                    <TextBlock Style="{StaticResource Text.Body}" Text="Server address" Margin="0,0,0,6"/>
+                    <TextBox Style="{StaticResource Field}" Width="320" HorizontalAlignment="Left"
+                             Text="{Binding ServerAddressHint, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Style="{StaticResource Text.Help}" Margin="0,6,0,14" MaxWidth="420" HorizontalAlignment="Left"
+                               Text="Reminder of the host address to join (typed in-game)."/>
+
+                    <TextBlock Style="{StaticResource Text.Body}" Text="Game folder" Margin="0,0,0,6"/>
+                    <TextBox Style="{StaticResource Field}" Width="320" HorizontalAlignment="Left"
+                             Text="{Binding GameRoot, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Style="{StaticResource Text.Help}" Margin="0,6,0,18" MaxWidth="420" HorizontalAlignment="Left"
+                               Text="Leave blank to auto-detect from where this exe lives."/>
+
+                    <Button Style="{StaticResource Btn.Primary}" Content="Save settings"
+                            local:Ui.Glyph="{StaticResource Icon.Save}"
+                            Command="{Binding SaveCommand}" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

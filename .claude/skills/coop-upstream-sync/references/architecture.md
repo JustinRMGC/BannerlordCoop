@@ -117,8 +117,8 @@ block survived the last merge.
 | `custom/Directory.Build.props` | Auto-imported for projects under `custom/`. Imports `CoopVersion` from `source/Directory.Build.props` (so the launcher is version-stamped to match the mod) and defines `CoopShareDir` for the launcher's own deploy. |
 | `custom/FonzaLauncher.sln` | The launcher's solution — keeps upstream `source/Coop.sln` pristine. |
 | `custom/CoopServerConsole/CoopServerConsole.csproj` | Launcher project (`AssemblyName` = FonzaLauncher, `net472`, WinForms). |
-| `custom/CoopServerConsole/Program.cs` | WinForms entry point. |
-| `custom/CoopServerConsole/MainForm.cs` | The control-panel UI (Fluent / Windows-11 style) plus its custom controls. |
+| `custom/CoopServerConsole/App.xaml(.cs)` | WPF entry point (preserves `--selftest` / `--tab`). |
+| `custom/CoopServerConsole/MainWindow.xaml(.cs)` + `Theme/` + `ViewModels/` + `Views/` | The control-panel UI — WPF/MVVM with a bespoke dark design system (rebuilt from WinForms 2026-07-20; backend classes reused unchanged). |
 | `custom/CoopServerConsole/ControlChannel.cs` | Console side of the file channel: reads the status file, writes commands, reads acks. |
 | `custom/CoopServerConsole/GameLauncher.cs` | Launches / tracks the Bannerlord engine as server & client child processes. |
 | `custom/CoopServerConsole/Paths.cs` | Resolves game / module / log / save locations relative to the exe. |

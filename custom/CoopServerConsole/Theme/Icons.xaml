@@ -1,0 +1,40 @@
+<!-- FONZA-CUSTOM · Segoe Fluent Icons glyph codepoints (fallback: Segoe MDL2 Assets).
+     Rendered via a TextBlock with FontFamily={StaticResource FontIcon}. Verified against
+     Microsoft's glyph lists; any tofu box in a screenshot means swap the codepoint here. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Navigation -->
+    <sys:String x:Key="Icon.Home">&#xE80F;</sys:String>
+    <sys:String x:Key="Icon.Server">&#xE965;</sys:String>
+    <sys:String x:Key="Icon.Client">&#xE7F4;</sys:String>
+    <sys:String x:Key="Icon.Players">&#xE716;</sys:String>
+    <sys:String x:Key="Icon.Settings">&#xE713;</sys:String>
+
+    <!-- Power / session controls -->
+    <sys:String x:Key="Icon.Play">&#xE768;</sys:String>
+    <sys:String x:Key="Icon.Stop">&#xE71A;</sys:String>
+    <sys:String x:Key="Icon.Pause">&#xE769;</sys:String>
+    <sys:String x:Key="Icon.Fast">&#xEB9D;</sys:String>
+    <sys:String x:Key="Icon.Restart">&#xE72C;</sys:String>
+    <sys:String x:Key="Icon.Save">&#xE74E;</sys:String>
+    <sys:String x:Key="Icon.Menu">&#xE700;</sys:String>
+
+    <!-- Player actions -->
+    <sys:String x:Key="Icon.Rename">&#xE70F;</sys:String>
+    <sys:String x:Key="Icon.Kick">&#xE8F8;</sys:String>
+
+    <!-- Tools -->
+    <sys:String x:Key="Icon.Folder">&#xE8B7;</sys:String>
+    <sys:String x:Key="Icon.Unlock">&#xE785;</sys:String>
+    <sys:String x:Key="Icon.Clear">&#xE894;</sys:String>
+    <sys:String x:Key="Icon.Search">&#xE721;</sys:String>
+
+    <!-- Connection / state -->
+    <sys:String x:Key="Icon.Connected">&#xE71B;</sys:String>
+    <sys:String x:Key="Icon.Disconnected">&#xE871;</sys:String>
+    <sys:String x:Key="Icon.Engine">&#xE950;</sys:String>
+    <sys:String x:Key="Icon.Down">&#xE74B;</sys:String>
+
+</ResourceDictionary>

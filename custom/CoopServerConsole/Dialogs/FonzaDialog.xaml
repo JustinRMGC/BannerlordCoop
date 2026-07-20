@@ -1,0 +1,27 @@
+<!-- FONZA-CUSTOM · dark modal used for confirmations and single-line input. -->
+<Window x:Class="CoopServerConsole.FonzaDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner"
+        SizeToContent="Height" Width="440"
+        TextOptions.TextFormattingMode="Ideal"
+        TextElement.Foreground="{StaticResource TextPrimaryBrush}"
+        TextElement.FontFamily="{StaticResource FontText}"
+        TextElement.FontSize="14">
+    <Border Background="{StaticResource Surface1Brush}" BorderBrush="{StaticResource BorderStrongBrush}"
+            BorderThickness="1" CornerRadius="12" Margin="18">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="28" ShadowDepth="7" Direction="270" Opacity="0.55" Color="#FF000000"/>
+        </Border.Effect>
+        <StackPanel Margin="22">
+            <TextBlock x:Name="TitleText" Style="{StaticResource Text.Section}" FontSize="16" Margin="0,0,0,8"/>
+            <TextBlock x:Name="MessageText" Style="{StaticResource Text.Secondary}" TextWrapping="Wrap" Margin="0,0,0,16"/>
+            <TextBox x:Name="Input" Style="{StaticResource Field}" Visibility="Collapsed" Margin="0,0,0,16"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="CancelBtn" Style="{StaticResource Btn.Secondary}" Content="Cancel" Margin="0,0,10,0" IsCancel="True" MinWidth="92"/>
+                <Button x:Name="OkBtn" Style="{StaticResource Btn.Primary}" Content="Confirm" IsDefault="True" MinWidth="92"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>
